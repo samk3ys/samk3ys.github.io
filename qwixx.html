@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Qwixx Score Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<link rel="manifest" href="manifest.json">
+
+
+<!--- CSS --->
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html, body {
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro",system-ui,sans-serif;
+  background:#f2f2f7;
+  min-height: 100vh;
+}
+body{
+  display:flex;
+  flex-direction:column;
+  row-gap:0px;
+  column-gap:3px;
+  padding:6px;
+  margin:0;
+  background:inherit;
+}
+
+.dark html, .dark body {background:#000;color:#fff;}
+
+table{
+  padding:6px;
+  margin: 0; 
+  background:transparent;
+  border-radius:0;
+  box-shadow:none;
+}
+.score-summary{
+  background:#fff; 
+  border-radius:14px; 
+  padding:6px;
+  margin: 0;
+}
+
+.dark .score-summary{background:#1c1c1e;}
+
+.visual-block{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 1px 3px rgba(0,0,0,.15);
+  align-items:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding: 1%;
+}
+.dark .visual-block{background:#1c1c1e;}
+
+.score-sheet-table{
+  padding-bottom: 3px;
+  align-items:center;
+  width: 100%;
+}
+.penalty-table {
+  padding-top: 3px;
+  align-items:center;
+}
+
+.top-header {
+  box-shadow: none;
+  text-decoration: underline;
+}
+.dark .top-header {
+  background:#1c1c1e;
+}
+
+td{
+  height:2em; 
+  border-radius:9px; 
+  text-align:center; 
+  line-height:2em; 
+  min-width: 5vw;
+  font-size:14px;font-weight:600;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+  user-select:none;
+  white-space:nowrap;
+  transition:transform .05s ease;
+}
+
+.dark td{background:#2c2c2e;color:#fff;}
+
+.td-with-button{
+  border: none !important;
+}
+
+button{
+  width:100%; height:100%;
+  border-radius:9px; border:none; background:#007aff; color:#fff; font-size:13px; font-weight:700;
+  background-color:#000;
+}
+
+.dark button{
+  border: 1px solid white;
+}
+
+/* Row colors */
+.red.selected,.row-color.red,.score-box.red{background:#ff3b30; color:#fff;}
+.yellow.selected,.row-color.yellow,.score-box.yellow{background:#ffcc00; color:#000;}
+.green.selected,.row-color.green,.score-box.green{background:#34c759; color:#fff;}
+.blue.selected,.row-color.blue,.score-box.blue{background:#007aff; color:#fff;}
+
+td.invalid{background:#e5e5ea;color:#8e8e93;text-decoration:line-through;}
+td.locked{background:#c7c7cc;color:#8e8e93;}
+
+.last-col-group-left{border-left:2px dotted #000; border-top-left-radius: 0px; border-bottom-left-radius: 0px;}
+.last-col-group-right{border-right:2px dotted #000; border-top-right-radius: 0px; border-bottom-right-radius: 0px;}
+.last-col-group-top{border-top:2px dotted #000; border-left:2px dotted #000; border-right:2px dotted #000; border-bottom:none; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; font-weight:700;}
+.last-col-group-bot-left{border-bottom:2px dotted #000; border-top-left-radius: 0px; border-bottom-right-radius: 0px; border-bottom-left-radius: 9px;}
+.last-col-group-bot-right{border-bottom:2px dotted #000; border-top-right-radius: 0px; border-bottom-left-radius: 0px; border-bottom-right-radius: 9px;}
+
+.dark .last-col-group-left{border-left:2px dotted #fff;}
+.dark .last-col-group-right{border-right:2px dotted #fff;}
+.dark .last-col-group-top{border-top:2px dotted #fff; border-left:2px dotted #fff; border-right:2px dotted #fff;}
+.dark .last-col-group-bot-left {border-bottom:2px dotted #fff;}
+.dark .last-col-group-bot-right {border-bottom:2px dotted #fff;}
+
+.penalty-row td{
+  min-width:10vw;
+  background:#f2f2f7;
+  border: 1px solid #000;
+}
+.dark .penalty-row td{background:#2c2c2e; border: 1px solid #fff;}
+
+.score-table{
+  border-collapse:collapse;
+  border-radius: 0px;
+}
+.score-table th,.score-table td{
+  border:1px solid #c7c7cc;
+  background:#fff;
+  height:26px;
+  font-size:12px;
+  box-shadow:none;
+}
+.dark .score-table th, .dark .score-table td{
+  background:#2c2c2e;color:#fff;
+}
+
+.score-summary{
+  font-size:16px;
+  font-weight:700;
+  padding-left:10%;
+  padding-right:10%;
+  margin: 0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+}
+.score-box{
+  min-width:36px;height:100%;border-radius:8px;
+  display:flex;justify-content:center;align-items:center;
+}
+.score-box.penalties{background:#f2f2f7; color:#000;}
+.score-box.final{border:none; background:none; min-width:36px;height:200%;border-radius:8px;
+  display:flex;justify-content:center;align-items:center;}
+.dark .score-box.final{border:none; color:#000;}
+.score-box.red-border{border:1px solid #ff3b30;background:#ff3b30; width:99%;height:99%;}
+.score-box.yellow-border{border:1px solid #ffcc00;background:#ffcc00; width:99%;height:99%;}
+.score-box.green-border{border:1px solid #34c759;background:#34c759; width:99%;height:99%;}
+.score-box.blue-border{border:1px solid #007aff;background:#fff; width:99%;height:99%;}
+
+.spacer {min-height:5px;}
+
+</style>
+</head>
+
+
+<!--- HTML --->
+<body>
+
+<div class="visual-block">
+<table id="colorRows" class="score-sheet-table"><tbody>
+<tr>
+<td class="td-with-button"><button id="resetBtn">↺</button></td>
+<td class="td-with-button"><button id="themeBtn">🌙</button></td>
+<td colspan="10" class="top-header">Qwixx Scoresheet</td>
+<td colspan="2" class="last-col-group-top">#■≥5</td>
+</tr>
+</tbody></table>
+
+<table class="penalty-table"><tr class="penalty-row">
+<td id="penaltyButtonCell" class="td-with-button">
+  <span id="penaltyLabel" style="display:none;">Penalties</span>
+  <button id="addPenaltyBtn">+Penalty</button></td>
+<td id="penalty1">&nbsp;</td>
+<td id="penalty2">&nbsp;</td>
+<td id="penalty3">&nbsp;</td>
+<td id="penalty4">&nbsp;</td>
+</tr></table>
+</div>
+
+<div class="spacer"></div>
+
+<div class="visual-block score-summary">
+<div class="score-box red" id="redScore">0</div>
+<span>+</span>
+<div class="score-box yellow" id="yellowScore">0</div>
+<span>+</span>
+<div class="score-box green" id="greenScore">0</div>
+<span>+</span>
+<div class="score-box blue" id="blueScore">0</div>
+<span>-</span>
+<div class="score-box penalties" id="penaltyScore">0</div>
+<span>=</span>
+<div class="score-box final">
+  <div class="score-box red-border">
+  <div class="score-box yellow-border">
+  <div class="score-box green-border">
+  <div class="score-box blue-border" id="totalScoreBox">
+  0
+  </div>
+  </div>
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="spacer"></div>
+
+<table class="score-table">
+<tr id="scoreSelectionRow"><td>#■</td></tr>
+<tr id="scorePointsRow"><td>Pts.</td></tr>
+</table>
+
+
+<!--- JAVASCRIPT --->
+<script>
+const rows = {
+  red: [2,3,4,5,6,7,8,9,10,11,12],
+  yellow: [2,3,4,5,6,7,8,9,10,11,12],
+  green: [12,11,10,9,8,7,6,5,4,3,2],
+  blue: [12,11,10,9,8,7,6,5,4,3,2]
+};
+const scoreTable = [0,1,3,6,10,15,21,28,36,45,55,66,78];
+let state = { red:[], yellow:[], green:[], blue:[], locked:{red:false,yellow:false,green:false,blue:false}, penalties:[false,false,false,false] };
+
+function twoOrMoreLocked(){ return Object.values(state.locked).filter(v=>v).length>=2; }
+function maxPenalties(){ return state.penalties.filter(p=>p).length>=4; }
+
+const tbody=document.querySelector('#colorRows tbody');
+
+/* Scoresheet ROW CREATION */
+for(let color in rows){
+  const tr=document.createElement('tr');
+  tr.dataset.color = color;
+  const colorCell=document.createElement('td'); colorCell.textContent=color.toUpperCase(); colorCell.className='row-color '+color;
+  colorCell.colSpan = 2;
+  tr.appendChild(colorCell);
+  rows[color].forEach((val,idx)=>{
+    const td=document.createElement('td'); td.textContent=val; td.dataset.value=val; td.dataset.color=color; td.dataset.index=idx;
+    td.classList.add(color); td.addEventListener('click',()=>selectCell(color,idx,td));
+    if(idx>=rows[color].length-1) td.classList.add('last-col-group-left');
+    if(idx>=rows[color].length-1 && color=="blue") td.classList.add('last-col-group-bot-left');
+    tr.appendChild(td);
+  });
+  const lockTd=document.createElement('td'); lockTd.textContent='🔓'; lockTd.style.fontWeight='bold'; lockTd.classList.add('last-col-group-right');
+  lockTd.addEventListener('click',()=>selectCell(color, rows[color].length, lockTd));
+  if(color=="blue") lockTd.classList.add('last-col-group-bot-right');
+  tr.appendChild(lockTd);
+  tbody.appendChild(tr);
+}
+
+function lastNumberIndex(color){
+  const nums = state[color].filter(v => typeof v === 'number');
+  if(!nums.length) return -1;
+  return rows[color].indexOf(nums[nums.length - 1]);
+}
+
+function selectCell(color, idx, td){
+  const rowData = state[color];
+  if(state.locked[color] || twoOrMoreLocked() || maxPenalties()) return;
+
+  const isLastNumber = idx === rows[color].length-1;
+  const lockTd = td.parentElement.querySelector('td:last-child');
+
+  if(td.textContent==='🔓'){
+    state.locked[color] = true;
+    if(rowData.includes(rows[color][rows[color].length-1])){
+      if(!rowData.includes('🔓')) rowData.push('🔓');
+      td.classList.add('selected', color);
+    } else { td.classList.add('invalid'); }
+    updateRowVisuals(color); calculateScore(); updatePenaltyButton(); checkGameEnd();
+    return;
+  }
+
+  if(isLastNumber && rowData.length<5) return;
+  
+  const lastIdx = lastNumberIndex(color);
+const val = rows[color][idx];
+/* UNDO LAST NUMBER */
+if(idx === lastIdx && rowData.includes(val)){
+  // remove the last number
+  rowData.pop();
+  // if lock was applied via last number, undo lock too
+  if(rowData.includes('🔓')){
+    rowData = rowData.filter(v => v !== '🔓');
+    state[color] = rowData;
+    state.locked[color] = false;
+  }
+  updateRowVisuals(color);
+  calculateScore();
+  updatePenaltyButton();
+  return;
+}
+/* NORMAL FORWARD SELECT */
+if(rowData.length === 0 || idx > lastIdx){
+  if(!rowData.includes(val)) rowData.push(val);
+  if(isLastNumber && rowData.length >= 5 && !rowData.includes('🔓')){
+    lockTd.classList.add('selected', color);
+    rowData.push('🔓');
+    state.locked[color] = true;
+  }
+  updateRowVisuals(color);
+  calculateScore();
+  updatePenaltyButton();
+}
+}
+
+function updateRowVisuals(color){
+  const tr = document.querySelector(`#colorRows tr[data-color="${color}"]`);
+
+  const colorCell = tr.querySelector('.row-color');
+  colorCell.classList.add(color);
+
+  const tds = Array.from(tr.querySelectorAll('td')).filter(td => !td.classList.contains('row-color'));
+  const rowData = state[color];
+  const lastIdx = rowData.filter(v=>typeof v==='number').length ? rows[color].indexOf(rowData.filter(v=>typeof v==='number').slice(-1)[0]) : -1;
+
+  tds.forEach((td,idx)=>{
+    td.classList.remove('selected','invalid','locked');
+    if(rowData.includes(rows[color][idx]) || (rowData.includes('🔓') && idx===rows[color].length)){
+      td.classList.add('selected', color);
+    } else if(idx < lastIdx && !rowData.includes(rows[color][idx])){
+  td.classList.add('invalid');
+}
+    if(state.locked[color] && !rowData.includes(rows[color][idx]) && td.textContent!=='🔓'){
+      td.classList.add('invalid');
+    }
+  });
+
+  if(state.locked[color]){
+    tds.forEach(td=>td.classList.add('locked'));
+    colorCell.classList.add('locked');
+  } else colorCell.classList.remove('locked');
+}
+
+// Penalties
+const penaltyCells = [document.getElementById('penalty1'),document.getElementById('penalty2'),document.getElementById('penalty3'),document.getElementById('penalty4')];
+penaltyCells.forEach((td,i)=>td.addEventListener('click',()=>{ if(twoOrMoreLocked()||maxPenalties()) return; state.penalties[i]=!state.penalties[i]; td.textContent=state.penalties[i]?'-5':'\u00A0'; calculateScore(); updatePenaltyButton(); checkGameEnd(); }));
+
+const penaltyLabel = document.getElementById('penaltyLabel');
+const addPenaltyBtn=document.getElementById('addPenaltyBtn');
+function updatePenaltyButton(){
+  if(twoOrMoreLocked()||maxPenalties()){ 
+    addPenaltyBtn.style.display = 'none';
+    penaltyLabel.style.display = 'inline';
+  } else {
+    addPenaltyBtn.style.display = 'inline-block';
+    penaltyLabel.style.display = 'none';
+  }
+}
+addPenaltyBtn.addEventListener('click',()=>{ if(twoOrMoreLocked()) return; for(let i=0;i<4;i++){ if(!state.penalties[i]){ state.penalties[i]=true; penaltyCells[i].textContent='-5'; break; } } calculateScore(); updatePenaltyButton(); checkGameEnd(); });
+
+// Score chart
+const selectionRow=document.getElementById('scoreSelectionRow');
+const pointsRow=document.getElementById('scorePointsRow');
+for(let i=1;i<=12;i++){ const th=document.createElement('th'); th.textContent=i; selectionRow.appendChild(th); }
+for(let i=1;i<=12;i++){ const td=document.createElement('td'); td.textContent=scoreTable[i]; pointsRow.appendChild(td); }
+
+// Calculate score
+function calculateScore(){
+  const scores={}; let total=0;
+  for(let color in rows){
+    const row = state[color];
+    let count = row.filter(v=>typeof v==='number').length;
+    if(row.includes('🔓') && row.includes(rows[color][rows[color].length-1])) count++;
+    const pts = count<scoreTable.length ? scoreTable[count] : scoreTable[scoreTable.length-1];
+    scores[color]=pts; total+=pts;
+  }
+  const penaltyScore = state.penalties.filter(p=>p).length*5; total -= penaltyScore;
+  document.getElementById('redScore').textContent = scores.red;
+  document.getElementById('yellowScore').textContent = scores.yellow;
+  document.getElementById('greenScore').textContent = scores.green;
+  document.getElementById('blueScore').textContent = scores.blue;
+  document.getElementById('penaltyScore').textContent = penaltyScore;
+  document.getElementById('totalScoreBox').textContent = total;
+}
+
+// Check if game ended
+function checkGameEnd(){
+  const gameOver = twoOrMoreLocked() || maxPenalties();
+  // uncomment if you want the total score to disappear until game is over.
+  //document.getElementById('totalScoreBox').style.display = gameOver ? 'flex' : 'none';
+}
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  state={red:[],yellow:[],green:[],blue:[],locked:{red:false,yellow:false,green:false,blue:false},penalties:[false,false,false,false]};
+  document.querySelectorAll('td').forEach(td=>td.classList.remove('selected','invalid','locked'));
+  penaltyCells.forEach(td=>td.textContent='\u00A0');
+  updatePenaltyButton(); calculateScore(); 
+  // Uncomment if you want the total score box to be invisible at the start of a game.
+  //document.getElementById('totalScoreBox').style.display='none';
+});
+
+document.getElementById('themeBtn').onclick=()=>{
+  document.documentElement.classList.toggle('dark');
+  themeBtn.textContent=document.documentElement.classList.contains('dark')?'☀️':'🌙';
+};
+
+/* Register Service Worker */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+
+// Todo
+// Settings pop-up. Can contain settings like dark mode, text size, wherher the final score box is visible during gameplay, automatic locking of a row after you tap the last number, credits/support donation, etc.
+</script>
+</body>
+</html>
