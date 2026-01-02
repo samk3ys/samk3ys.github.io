@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Farkle</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#1f4fa3;
+  --text:#ff9f1a;
+  --panel:#2c63c7;
+}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
+#app{max-width:900px;margin:auto;padding:10px;text-align:center;}
+h1{font-family:"Trebuchet MS",Impact,sans-serif;letter-spacing:2px;}
+
+table{border-collapse:collapse;margin:10px auto;width:100%;}
+th{padding:4px; border-bottom:1px solid rgba(255,255,255,.3);}
+td{padding:4px;}
+button,input,textarea{font-size:1em;padding:6px;border-radius:4px;border:none;}
+button{background:var(--panel);color:var(--text);}
+@media (hover: hover) {
+button:hover{opacity:0.9;cursor:pointer;}
+}
+.wideBtn{width:100%;}
+.arrow-button{width:10vw;}
+#commonScoreButtons button{margin-top:3px;
+}
+
+.hidden{display:none;}
+.bold{font-weight:bold;}
+.bordered{border:1px solid rgba(255,255,255,.3);}
+.border-bottom{border-bottom:1px solid rgba(255,255,255,.3);}
+#scoringGuide table{border-collapse: separate; border:none;}
+.double-sides {border-left: 3px double rgba(255,255,255,.3); border-right: 3px double rgba(255,255,255,.3);}
+.double-top{border-top: 3px double rgba(255,255,255,.3); border-bottom: 3px double rgba(255,255,255,.3);}
+.double-bottom{border-bottom: 3px double rgba(255,255,255,.3);}
+
+#settingsBtn{position:absolute;top:10px;right:10px;font-size:1.4em;background:none;}
+#settingsXBtn{float:right;font-size:1.4em;background:none;color:var(--text);padding-bottom:0px;}
+#settingsPanel{background:var(--panel);padding:10px;border-radius:8px;margin:10px auto;max-width:400px;}
+.settings-button{background:var(--text);color:var(--panel); min-width:50%;}
+.remove-button{width:100%;}
+
+#editPlayersTable{border:1px solid rgba(255,255,255,.3);}
+#scoreTable{border:1px solid rgba(255,255,255,.3);}
+#currentPlayerTable{border:3px solid var(--text);font-size:1.3em;}
+#currentPlayerTable td{text-align:center;border:none;}
+#runningScoreCell{text-align:right;}
+.activePlayer{justify-content:center; align-items:center;}
+
+.colorRow{display:flex;align-items:center;justify-content: center;gap:6px;margin:4px 0;}
+.colorRow input{width:30%; box-sizing:border-box;}
+.colorSwatch{width:20px;height:20px;border:1px solid #000;}
+
+#limitOptions{}
+.limitGroup table{border:none; table-layout:fixed; gap:6px; margin: 0px auto; border-collapse:collapse;}
+.limitGroup td{border:none; padding:3px; gap:3px;}
+.limitRow{justify-content:center; align-items:center; width:90%;}
+.limitRow label{min-width: fit-content; padding-right: 5px; text-align: right; box-sizing: border-box; white-space:nowrap;}
+.limitRow input{width:100%; box-sizing:border-box;}
+
+#houseRulesInput{width:100%;resize:none;overflow:hidden;box-sizing:border-box;}
+
+#playerNameBig{font-size:1.4em;text-decoration:underline;}
+#playerScoreSmall{font-size:0.6em;}
+
+.containsEndBtn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hidingContainer{}
+
+.view-settings{}
+.view-guide{}
+.view-setup{}
+.view-scores{}
+.view-game{}
+.view-end{}
+
+</style>
+</head>
+
+
+<body>
+<div id="app">
+<button id="settingsBtn" onclick="toggleSettings()">⚙️</button>
+<h1>Farkle</h1>
+
+<!-- SETTINGS -->
+<div id="settingsPanel" class="hidden view-settings">
+<button id="settingsXBtn" onclick="toggleSettings()">X</button>
+<h3>Farkle Settings</h3>
+<button onclick="toggleTheme()" id="themeBtn" class="settings-button">🌙 Dark Mode</button>
+<br><br>
+<button onclick="toggleColors()" class="settings-button">🎨 Colors</button>
+<div id="colorOptions" class="hidden">
+  <div class="colorRow"><div class="colorSwatch" id="bgSwatch"></div><input id="bgColor" value="#1f4fa3" oninput="applyColors()"></div>
+  <div class="colorRow"><div class="colorSwatch" id="textSwatch"></div><input id="textColor" value="#ff9f1a" oninput="applyColors()"></div>
+  <div class="colorRow"><div class="colorSwatch" id="btnSwatch"></div><input id="buttonColor" value="#2c63c7" oninput="applyColors()"></div>
+</div>
+<br><br>
+<button onclick="toggleLimits()" class="settings-button">📈 Score Limits</button>
+<div id="limitOptions" class="hidden">
+<table id="limitOptionsTable" class="limitGroup">
+<tr class="limitRow">
+<td style="text-align:right;"><label for="winScoreInput">Winning Score:</label></td>
+<td style="text-align:left;"><input id="winScoreInput" type="number" value="10000" oninput="updateScoreLimits()"></td>
+</tr>
+<tr class="limitRow">
+<td style="text-align:right;"><label for="minScoreInput">Minimum Score:</label></td>
+<td style="text-align:left;"><input id="minScoreInput" type="number" value="500" oninput="updateScoreLimits()"></td>
+</tr>
+</table>
+</div>
+<br><br>
+<label>House Rules <input type="checkbox" id="houseRulesToggle" onchange="toggleHouseRules()"></label>
+<br><br><br><br>
+<button id="settingsCloseBtn" class="settings-button" onclick="toggleSettings()">Close Settings</button>
+</div>
+
+<!-- SCORING GUIDE -->
+<button id="guideBtn" class="view-guide wideBtn" onclick="toggleGuide()">Show Scoring Guide</button>
+<table id="scoringGuide" class="view-guide">
+<tbody id="guideBody" class="hidden">
+<tr class="bordered double-sides double-top" style="border-bottom:none;"><td colspan="2">Minimum <span id="minScoreLabel">500</span> points to start scoring.</td></tr>
+<tr class="bordered double-sides" style="border-top:none;"><td colspan="2">Score <span id="winScoreLabel">10000</span> points to end game.</td></tr>
+<tr class="bordered double-sides"><td>⚀</td><td>100</td></tr>
+<tr class="bordered double-sides"><td>⚄</td><td>50</td></tr>
+<tr class="bordered double-sides"><td>⚀ ⚀ ⚀</td><td>1000</td></tr>
+<tr class="bordered double-sides"><td>⚁ ⚁ ⚁</td><td>200</td></tr>
+<tr class="bordered double-sides"><td>⚂ ⚂ ⚂</td><td>300</td></tr>
+<tr class="bordered double-sides"><td>⚃ ⚃ ⚃</td><td>400</td></tr>
+<tr class="bordered double-sides"><td>⚄ ⚄ ⚄</td><td>500</td></tr>
+<tr class="bordered double-sides"><td>⚅ ⚅ ⚅</td><td>600</td></tr>
+<tr class="bordered double-sides"><td>□□     □□     □□</td><td>3 Pairs – 1500</td></tr>
+<tr class="bordered double-sides"><td>□□□□</td><td>4 of a kind – 1000</td></tr>
+<tr class="bordered double-sides"><td>□□□□□</td><td>5 of a kind – 2000</td></tr>
+<tr id="lastScoreRow" class="bordered double-sides double-bottom"><td>□□□□□□</td><td>6 of a kind – 3000</td></tr>
+<tr id="houseRulesRow" class="hidden bordered double-sides double-bottom"><td colspan="2">
+House rules:<br><textarea id="houseRulesInput" rows="1" oninput="autoGrow(this)"></textarea></td></tr>
+</tbody>
+</table>
+
+
+<!-- GAME OVER -->
+<div id="gameOverText" class="hidden view-end"><h2>Game Over!</h2></div>
+
+<!-- EDIT PLAYERS TABLE -->
+<table id="editPlayersTable" class="view-setup">
+<thead><tr><th>#</th><th>Name</th><th>Remove</th></tr></thead>
+<tbody id="editPlayersBody"></tbody>
+<tfoot>
+<tr><td colspan="3"><button onclick="addPlayerRow()">+ Player</button></td></tr>
+</tfoot>
+</table>
+
+<!-- GAME CONTROL BUTTONS -->
+<button id="startGameBtn" class="view-setup" onclick="startGame()">Start Game</button>
+<button id="playAgainBtn" class="hidden view-end" onclick="playAgain()">Play Again?</button>
+<button id="changePlayersBtn" class="hidden view-end" onclick="changePlayers()">Change Players?</button>
+
+<!--- PLAYER / GAME ELEMENTS --->
+<table id="scoreTable" class="hidden view-scores">
+<thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead>
+<tbody id="scoreBody"></tbody>
+</table>
+
+<table id="currentPlayerTable" class="hidden view-game">
+<tr>
+<td style="justify-content:center; align-items:center;"><button onclick="prevPlayer()" class="arrow-button">&lt;</button></td>
+<td class="activePlayer"><div id="playerNameBig" style="text-decoration-color:var(--panel);"></div><div id="playerScoreSmall"></div></td>
+<td style="justify-content:center; align-items:center;"><button onclick="nextPlayer()" class="arrow-button">&gt;</button></td>
+</tr>
+<tr><td colspan="3">
+<input id="addScoreInput" type="number" inputmode="numeric" placeholder="Score">
+<button onclick="addRunningScore()">Add Score</button></td></tr>
+<tr id="commonScoreButtons"><td colspan="3">
+<button onclick="addRunningScore(50)">50</button>
+<button onclick="addRunningScore(100)">100</button>
+<button onclick="addRunningScore(200)">200</button>
+<button onclick="addRunningScore(300)">300</button>
+<button onclick="addRunningScore(400)">400</button>
+<button onclick="addRunningScore(500)">500</button>
+<button onclick="addRunningScore(600)">600</button>
+<button onclick="addRunningScore(1000)">1000</button>
+<button onclick="addRunningScore(1500)">1500</button>
+<button onclick="addRunningScore(2000)">2000</button>
+<button onclick="addRunningScore(3000)">3000</button>
+</td></tr>
+<tr><td colspan="3">
+<span style="text-align:right">Running Score: </span>
+<span id="runningScoreCell" class="bold">0</span>
+</td></tr>
+<tr><td colspan="3"><button class="wideBtn" onclick="farkle()">Farkle</button></td></tr>
+<tr><td colspan="3"><button class="wideBtn" onclick="endTurn()">End Turn</button></td></tr>
+</table>
+</div>
+
+<br><br>
+<div class="hidden view-game">
+<div class="containsEndBtn">
+<button id="manualEndBtn" onclick="endGameConfirmation()">End Game</button>
+</div>
+</div>
+<br>
+
+<script>
+let players=[],scores=[],origNames=[];
+let cur=0,running=0,winScore=10000,minScore=500;
+let finalRound=false,finalStarter=-1,dark=false;
+
+const settingsElements = document.querySelectorAll('.view-settings');
+const guideElements = document.querySelectorAll('.view-guide');
+const setupElements = document.querySelectorAll('.view-setup');
+const scoreElements = document.querySelectorAll('.view-scores');
+const gameElements = document.querySelectorAll('.view-game');
+const endElements = document.querySelectorAll('.view-end');
+
+var view = 1; // 0=settings, 1=setup, 2=game, 3=end
+var settingsPreviousView = 0;
+
+// Initialize view
+viewSetup();
+
+function addPlayerRow(name=""){
+ const r=document.createElement("tr");
+ r.innerHTML=`<td></td><td><input onkeydown="playerEnter(event,this)" value="${name}"></td>
+ <td><button class="remove-button" onclick="this.parentNode.parentNode.remove();renumberEdit()">-</button></td>`;
+ editPlayersBody.appendChild(r);renumberEdit();
+}
+
+function simulateEnter() {
+  const event = new KeyboardEvent('keydown', {
+  key: 'Enter',
+  code: 'Enter',
+  which: 13, 
+  keyCode: 13,
+  bubbles: true
+  });
+  document.activeElement.dispatchEvent(event);
+  }
+
+function playerEnter(e,el){
+ if(e.key==="Enter"){
+  let inputs=[...document.querySelectorAll("#editPlayersBody input")];
+  let i=inputs.indexOf(el);
+  if(i===inputs.length-1) { 
+    addPlayerRow();  // add another player box.
+    simulateEnter(); // move to the newly created row. Presses enter again automatically.
+  }
+  setTimeout(()=>inputs[i+1]?.focus(),50);
+ }
+}
+
+function renumberEdit(){[...editPlayersBody.children].forEach((r,i)=>r.children[0].innerText=i+1);}
+addPlayerRow();addPlayerRow();
+
+function startGame(){
+ players=[];scores=[];
+ [...editPlayersBody.children].forEach(r=>{let n=r.children[1].firstChild.value.trim();if(n){players.push(n);scores.push(0);}});
+ if(!players.length)return;
+ origNames=[...players];
+ viewGame();
+ updateScoreTable();showCurrent();
+}
+
+function updateScoreTable(){
+ let max=Math.max(...scores);
+ scoreBody.innerHTML="";
+ players.forEach((p,i)=>{
+  let cls=(scores[i]===max && max>0)?"bold":"";
+  scoreBody.innerHTML+=`<tr class="${cls}"><td>${i+1}</td><td>${p}</td><td>${scores[i]}</td></tr>`;
+ });
+}
+
+function showCurrent(){
+ playerNameBig.innerText=players[cur];
+ playerScoreSmall.innerText="Total: "+scores[cur];
+ runningScoreCell.innerText=running;
+ addScoreInput.value="";
+}
+
+function addRunningScore(points=0){
+if(points>0){
+  running+=+points;
+} else {
+running+=+addScoreInput.value||0;
+}
+showCurrent();
+}
+
+function farkle(){running=0;endTurn(true);}
+
+function endTurn(fromFarkle=false){
+ if(!fromFarkle){
+  if(!(scores[cur]<minScore && running<minScore)) scores[cur]+=running;
+ }
+ if(scores[cur]>=winScore && !finalRound){finalRound=true;finalStarter=cur;}
+ running=0;
+ nextPlayer(true);
+}
+
+function nextPlayer(check=false){
+ cur=(cur+1)%players.length;
+ if(finalRound && cur===finalStarter){endGame();return;}
+ showCurrent();
+ updateScoreTable();
+}
+
+function prevPlayer(){cur=(cur-1+players.length)%players.length;showCurrent();}
+
+function endGame(){
+  viewEnd();
+  let arr=players.map((p,i)=>({p, s:scores[i]})).sort((a,b)=>b.s-a.s);
+  const b=document.getElementById("scoreBody");b.innerHTML="";
+  arr.forEach((o,i)=>{
+    let name=o.p;
+    if(i==0)name=`👑 ${name} 👑`;
+    b.innerHTML+=`<tr><td>${i+1}</td><td>${name}</td><td>${o.s}</td></tr>`;
+  });
+}
+
+function endGameConfirmation() {
+  if (confirm("Are you sure you want to end the game?") == true) {
+    endGame();
+  }
+}
+
+function playAgain(){
+  scores=scores.map(()=>0);cur=0;running=0;finalRound=false;
+  viewGame();
+  updateScoreTable();showCurrent();
+}
+
+function changePlayers(){
+  viewSetup();
+  const body = document.getElementById("editPlayersBody");
+  body.innerHTML="";
+  origNames.forEach(n=>addPlayerRow(n));
+  //location.reload();
+}
+
+function toggleGuide(){
+ guideBody.classList.toggle("hidden");
+ guideBtn.innerText=guideBody.classList.contains("hidden")?"Show Scoring Guide":"Hide Scoring Guide";
+}
+
+function autoGrow(t){t.style.height="auto";t.style.height=t.scrollHeight+"px";}
+
+function viewSetup() {
+  view = 1;
+  settingsElements.forEach(element => {element.classList.add('hidden');});
+  guideElements.forEach(element => {element.classList.remove('hidden');});
+  setupElements.forEach(element => {element.classList.remove('hidden');});
+  scoreElements.forEach(element => {element.classList.add('hidden');});
+  gameElements.forEach(element => {element.classList.add('hidden');});
+  endElements.forEach(element => {element.classList.add('hidden');});
+}
+
+function viewGame() {
+  view = 2;
+  settingsElements.forEach(element => {element.classList.add('hidden');});
+  guideElements.forEach(element => {element.classList.remove('hidden');});
+  setupElements.forEach(element => {element.classList.add('hidden');});
+  scoreElements.forEach(element => {element.classList.remove('hidden');});
+  gameElements.forEach(element => {element.classList.remove('hidden');});
+  endElements.forEach(element => {element.classList.add('hidden');});
+}
+
+function viewEnd() {
+  view = 3;
+  settingsElements.forEach(element => {element.classList.add('hidden');});
+  guideElements.forEach(element => {element.classList.add('hidden');});
+  setupElements.forEach(element => {element.classList.add('hidden');});
+  scoreElements.forEach(element => {element.classList.remove('hidden');});
+  gameElements.forEach(element => {element.classList.add('hidden');});
+  endElements.forEach(element => {element.classList.remove('hidden');});
+}
+
+function toggleSettings(){
+  // 0 - turning settings view on, hiding others.
+  // 1 - return to setup view.
+  // 2 - return to game view.
+  // 3 - return to end view.
+  if(view>0){
+    settingsElements.forEach(element => {element.classList.remove('hidden');});
+    guideElements.forEach(element => {element.classList.add('hidden');});
+    setupElements.forEach(element => {element.classList.add('hidden');});
+    scoreElements.forEach(element => {element.classList.add('hidden');});
+    gameElements.forEach(element => {element.classList.add('hidden');});
+    endElements.forEach(element => {element.classList.add('hidden');});
+    applyColors();
+    settingsPreviousView = view;
+    view = 0;
+  }
+  
+  else if(settingsPreviousView==1){
+    viewSetup();
+  }
+  else if(settingsPreviousView==2){
+    viewGame();
+  }
+  else if(settingsPreviousView==3){
+    viewEnd();
+  }
+  
+}
+
+function toggleTheme(){
+ dark=!dark;
+ if(dark){
+  bgColor.value="#111";textColor.value="#ddd";themeBtn.innerText="☀️ Light Mode";
+ }else{
+  bgColor.value="#1f4fa3";textColor.value="#ff9f1a";themeBtn.innerText="🌙 Dark Mode";
+ }
+ applyColors();
+}
+
+function toggleColors(){colorOptions.classList.toggle("hidden");}
+
+function applyColors(){
+ document.documentElement.style.setProperty("--bg",bgColor.value);
+ document.documentElement.style.setProperty("--text",textColor.value);
+  document.documentElement.style.setProperty("--panel",buttonColor.value);
+ bgSwatch.style.background=bgColor.value;
+ textSwatch.style.background=textColor.value;
+ btnSwatch.style.background=buttonColor.value;
+}
+
+function toggleLimits(){limitOptions.classList.toggle("hidden");}
+
+function updateScoreLimits(){
+  winScore=+winScoreInput.value;
+  winScoreLabel.innerText = +winScoreInput.value;
+  minScore=+minScoreInput.value;
+  minScoreLabel.innerText = +minScoreInput.value;
+}
+
+function toggleHouseRules(){
+  houseRulesRow.classList.toggle("hidden",!houseRulesToggle.checked);
+  lastScoreRow.classList.toggle("double-bottom", !houseRulesToggle.checked);
+  }
+
+</script>
+</body>
+</html>
