@@ -104,6 +104,10 @@ button{
   border: 1px solid white;
 }
 
+@media (hover: hover) {
+button:hover{opacity:0.9;cursor:pointer;}
+}
+
 /* Row colors */
 .red.selected,.row-color.red,.score-box.red{background:#ff3b30; color:#fff;}
 .yellow.selected,.row-color.yellow,.score-box.yellow{background:#ffcc00; color:#000;}
@@ -139,9 +143,17 @@ td.locked{background:#c7c7cc;color:#8e8e93;}
 .score-table th,.score-table td{
   border:1px solid #c7c7cc;
   background:#fff;
-  height:26px;
+  height:1em;
+  line-height:1.2em; 
   font-size:12px;
   box-shadow:none;
+  border-radius:0px; 
+  text-align:center; 
+  min-width: 5vw;
+  font-weight:400;
+  user-select:none;
+  white-space:nowrap;
+  transition:transform .05s ease;
 }
 .dark .score-table th, .dark .score-table td{
   background:#2c2c2e;color:#fff;
@@ -194,7 +206,7 @@ td.locked{background:#c7c7cc;color:#8e8e93;}
 <table class="penalty-table"><tr class="penalty-row">
 <td id="penaltyButtonCell" class="td-with-button">
   <span id="penaltyLabel" style="display:none;">Penalties</span>
-  <button id="addPenaltyBtn">+Penalty</button></td>
+  <button id="addPenaltyBtn">+Penalty (-5 pts.)</button></td>
 <td id="penalty1">&nbsp;</td>
 <td id="penalty2">&nbsp;</td>
 <td id="penalty3">&nbsp;</td>
@@ -281,11 +293,39 @@ function lastNumberIndex(color){
 
 function selectCell(color, idx, td){
   const rowData = state[color];
-  if(state.locked[color] || twoOrMoreLocked() || maxPenalties()) return;
-
   const isLastNumber = idx === rows[color].length-1;
   const lockTd = td.parentElement.querySelector('td:last-child');
-
+  const lastIdx = lastNumberIndex(color);
+  const val = rows[color][idx];
+  
+  if(state.locked[color] && td.textContent === '🔓'){
+    unlockRow(color);
+    return;
+  } else if(state.locked[color]){
+    // If row is locked, only allow the lock to be pressed. Otherwise do nothing. 
+    return;
+  }
+  
+  /* UNDO LAST NUMBER */
+  if(idx === lastIdx && rowData.includes(val)){
+    // remove the last number
+    rowData.pop();
+    // if lock was applied via last number, undo lock too
+    if(rowData.includes('🔓')){
+      rowData = rowData.filter(v => v !== '🔓');
+      state[color] = rowData;
+      state.locked[color] = false;
+    }
+    updateRowVisuals(color);
+    calculateScore();
+    updatePenaltyButton();
+    return;
+  }
+  
+  // Don't continue if game is over.
+  // Unless attempting to unlock a row.
+  if(twoOrMoreLocked() || maxPenalties() && !state.locked[color]) return;
+  
   if(td.textContent==='🔓'){
     state.locked[color] = true;
     if(rowData.includes(rows[color][rows[color].length-1])){
@@ -298,35 +338,42 @@ function selectCell(color, idx, td){
 
   if(isLastNumber && rowData.length<5) return;
   
-  const lastIdx = lastNumberIndex(color);
-const val = rows[color][idx];
-/* UNDO LAST NUMBER */
-if(idx === lastIdx && rowData.includes(val)){
-  // remove the last number
-  rowData.pop();
-  // if lock was applied via last number, undo lock too
-  if(rowData.includes('🔓')){
-    rowData = rowData.filter(v => v !== '🔓');
-    state[color] = rowData;
-    state.locked[color] = false;
+   /* NORMAL FORWARD SELECT */
+  if(rowData.length === 0 || idx > lastIdx){
+    if(!rowData.includes(val)) rowData.push(val);
+    if(isLastNumber && rowData.length >= 5 && !rowData.includes('🔓')){
+      // Lock row
+      lockTd.classList.add('selected', color);
+      rowData.push('🔓');
+      state.locked[color] = true;
+    }
+    updateRowVisuals(color);
+    calculateScore();
+    updatePenaltyButton();
   }
+}
+
+function unlockRow(color){
+  let row = state[color];
+
+  // remove lock marker
+  row = row.filter(v => v !== '🔓');
+
+  // remove the last number as well
+  const nums = row.filter(v => typeof v === 'number');
+  if(nums.length){
+    const last = nums[nums.length - 1];
+    if(last == rows[color][rows[color].length-1]){
+      row = row.filter(v => v !== last);
+    }
+  }
+
+  state[color] = row;
+  state.locked[color] = false;
+
   updateRowVisuals(color);
   calculateScore();
   updatePenaltyButton();
-  return;
-}
-/* NORMAL FORWARD SELECT */
-if(rowData.length === 0 || idx > lastIdx){
-  if(!rowData.includes(val)) rowData.push(val);
-  if(isLastNumber && rowData.length >= 5 && !rowData.includes('🔓')){
-    lockTd.classList.add('selected', color);
-    rowData.push('🔓');
-    state.locked[color] = true;
-  }
-  updateRowVisuals(color);
-  calculateScore();
-  updatePenaltyButton();
-}
 }
 
 function updateRowVisuals(color){
@@ -354,12 +401,15 @@ function updateRowVisuals(color){
   if(state.locked[color]){
     tds.forEach(td=>td.classList.add('locked'));
     colorCell.classList.add('locked');
-  } else colorCell.classList.remove('locked');
+  } else {
+    tds.forEach(td=>td.classList.remove('locked'));
+    colorCell.classList.remove('locked');
+  }
 }
 
 // Penalties
 const penaltyCells = [document.getElementById('penalty1'),document.getElementById('penalty2'),document.getElementById('penalty3'),document.getElementById('penalty4')];
-penaltyCells.forEach((td,i)=>td.addEventListener('click',()=>{ if(twoOrMoreLocked()||maxPenalties()) return; state.penalties[i]=!state.penalties[i]; td.textContent=state.penalties[i]?'-5':'\u00A0'; calculateScore(); updatePenaltyButton(); checkGameEnd(); }));
+penaltyCells.forEach((td,i)=>td.addEventListener('click',()=>{ if(twoOrMoreLocked()) return; state.penalties[i]=!state.penalties[i]; td.textContent=state.penalties[i]?'-5':'\u00A0'; calculateScore(); updatePenaltyButton(); checkGameEnd(); }));
 
 const penaltyLabel = document.getElementById('penaltyLabel');
 const addPenaltyBtn=document.getElementById('addPenaltyBtn');
