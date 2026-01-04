@@ -23,6 +23,7 @@ button{background:var(--panel);color:var(--text);}
 button:hover{opacity:0.9;cursor:pointer;}
 }
 .wideBtn{width:100%;}
+.invertedBtn{background:var(--text); color:var(--panel);}
 .arrow-button{width:10vw;}
 #commonScoreButtons button{margin-top:3px;
 }
@@ -126,18 +127,21 @@ button:hover{opacity:0.9;cursor:pointer;}
 <tbody id="guideBody" class="hidden">
 <tr class="bordered double-sides double-top" style="border-bottom:none;"><td colspan="2">Minimum <span id="minScoreLabel">500</span> points to start scoring.</td></tr>
 <tr class="bordered double-sides" style="border-top:none;"><td colspan="2">Score <span id="winScoreLabel">10000</span> points to end game.</td></tr>
-<tr class="bordered double-sides"><td>⚀</td><td>100</td></tr>
 <tr class="bordered double-sides"><td>⚄</td><td>50</td></tr>
-<tr class="bordered double-sides"><td>⚀ ⚀ ⚀</td><td>1000</td></tr>
+<tr class="bordered double-sides"><td>⚀</td><td>100</td></tr>
+<tr class="bordered double-sides"><td>⚀ ⚀ ⚀</td><td>300</td></tr>
 <tr class="bordered double-sides"><td>⚁ ⚁ ⚁</td><td>200</td></tr>
 <tr class="bordered double-sides"><td>⚂ ⚂ ⚂</td><td>300</td></tr>
 <tr class="bordered double-sides"><td>⚃ ⚃ ⚃</td><td>400</td></tr>
 <tr class="bordered double-sides"><td>⚄ ⚄ ⚄</td><td>500</td></tr>
 <tr class="bordered double-sides"><td>⚅ ⚅ ⚅</td><td>600</td></tr>
-<tr class="bordered double-sides"><td>□□     □□     □□</td><td>3 Pairs – 1500</td></tr>
-<tr class="bordered double-sides"><td>□□□□</td><td>4 of a kind – 1000</td></tr>
-<tr class="bordered double-sides"><td>□□□□□</td><td>5 of a kind – 2000</td></tr>
-<tr id="lastScoreRow" class="bordered double-sides double-bottom"><td>□□□□□□</td><td>6 of a kind – 3000</td></tr>
+<tr class="bordered double-sides"><td>□ □ □ □</td><td>4 of a kind – 1000</td></tr>
+<tr class="bordered double-sides"><td>□ □ □ □ □</td><td>5 of a kind – 2000</td></tr>
+<tr class="bordered double-sides"><td>□ □ □ □ □ □</td><td>6 of a kind – 3000</td></tr>
+<tr class="bordered double-sides"><td>⚀ ⚁ ⚂ ⚃ ⚄ ⚅</td><td>1-6 Straight – 1500</td></tr>
+<tr class="bordered double-sides"><td>□□ + □□ + □□</td><td>3 Pairs – 1500</td></tr>
+<tr class="bordered double-sides"><td>□□□ + □□□</td><td>2 Triplets – 2500</td></tr>
+<tr id="lastScoreRow" class="bordered double-sides double-bottom"><td>□□□□ + □□</td><td>4 of a kind + 1 pair – 1500</td></tr>
 <tr id="houseRulesRow" class="hidden bordered double-sides double-bottom"><td colspan="2">
 House rules:<br><textarea id="houseRulesInput" rows="1" oninput="autoGrow(this)"></textarea></td></tr>
 </tbody>
@@ -161,21 +165,32 @@ House rules:<br><textarea id="houseRulesInput" rows="1" oninput="autoGrow(this)"
 <button id="playAgainBtn" class="hidden view-end" onclick="playAgain()">Play Again?</button>
 <button id="changePlayersBtn" class="hidden view-end" onclick="changePlayers()">Change Players?</button>
 
-<!--- PLAYER / GAME ELEMENTS --->
+<!--- PLAYER SCORES TABLE --->
 <table id="scoreTable" class="hidden view-scores">
 <thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead>
 <tbody id="scoreBody"></tbody>
 </table>
 
+<!--- CURRENT PLAYER / ROLL TABLE --->
 <table id="currentPlayerTable" class="hidden view-game">
+
 <tr>
 <td style="justify-content:center; align-items:center;"><button onclick="prevPlayer()" class="arrow-button">&lt;</button></td>
 <td class="activePlayer"><div id="playerNameBig" style="text-decoration-color:var(--panel);"></div><div id="playerScoreSmall"></div></td>
 <td style="justify-content:center; align-items:center;"><button onclick="nextPlayer()" class="arrow-button">&gt;</button></td>
 </tr>
+
+<tr>
+<td></td>
+<td><input id="addScoreInput" type="number" inputmode="numeric" placeholder="Score"></td>
+<td></td>
+</tr>
+
 <tr><td colspan="3">
-<input id="addScoreInput" type="number" inputmode="numeric" placeholder="Score">
-<button onclick="addRunningScore()">Add Score</button></td></tr>
+<button onclick="addRunningScore()">Add Score</button>
+<button onclick="subtractRunningScore()">Subtract Score</button>
+</td></tr>
+
 <tr id="commonScoreButtons"><td colspan="3">
 <button onclick="addRunningScore(50)">50</button>
 <button onclick="addRunningScore(100)">100</button>
@@ -187,16 +202,24 @@ House rules:<br><textarea id="houseRulesInput" rows="1" oninput="autoGrow(this)"
 <button onclick="addRunningScore(1000)">1000</button>
 <button onclick="addRunningScore(1500)">1500</button>
 <button onclick="addRunningScore(2000)">2000</button>
+<button onclick="addRunningScore(2500)">2500</button>
 <button onclick="addRunningScore(3000)">3000</button>
-</td></tr>
-<tr><td colspan="3">
+</td>
+</tr>
+
+<tr>
+<td colspan="3">
 <span style="text-align:right">Running Score: </span>
 <span id="runningScoreCell" class="bold">0</span>
-</td></tr>
-<tr><td colspan="3"><button class="wideBtn" onclick="farkle()">Farkle</button></td></tr>
-<tr><td colspan="3"><button class="wideBtn" onclick="endTurn()">End Turn</button></td></tr>
+</td>
+</tr>
+
+<tr>
+<td colspan="3"><button class="wideBtn invertedBtn" onclick="farkle()">Farkle</button></td></tr>
+<tr><td colspan="3"><button class="wideBtn" onclick="endTurn()">End Turn</button></td>
+</tr>
 </table>
-</div>
+
 
 <br><br>
 <div class="hidden view-game">
@@ -287,6 +310,15 @@ if(points>0){
   running+=+points;
 } else {
 running+=+addScoreInput.value||0;
+} 
+showCurrent();
+}
+
+function subtractRunningScore(points=0){
+if(points>0){
+  running-=+points;
+} else {
+running-=+addScoreInput.value||0;
 }
 showCurrent();
 }
@@ -305,11 +337,16 @@ function endTurn(fromFarkle=false){
 function nextPlayer(check=false){
  cur=(cur+1)%players.length;
  if(finalRound && cur===finalStarter){endGame();return;}
+ running=0;
  showCurrent();
  updateScoreTable();
 }
 
-function prevPlayer(){cur=(cur-1+players.length)%players.length;showCurrent();}
+function prevPlayer(){
+  cur=(cur-1+players.length)%players.length;showCurrent();
+  running=0;
+  showCurrent();
+}
 
 function endGame(){
   viewEnd();
