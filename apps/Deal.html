@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Deal or No Deal</title>
+
+<style>
+:root {
+  --bg-dark:#0b0f1a;
+  --gold:#d4af37;
+  --silver:#cfd2d6;
+  --red:#b00020;
+  --panel:#141a2e;
+  --text:#fff;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  font-family:"Arial Black","Trebuchet MS",sans-serif;
+  background:radial-gradient(circle at top,#1a2340,var(--bg-dark));
+  color:var(--text);
+  min-height:100svh;
+}
+
+header {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px 40px 10px 10px;
+  font-size:1.8rem;
+  letter-spacing:2px;
+  color:var(--gold);
+  position:relative;
+}
+
+#trophy {
+  position:absolute;
+  right:10px;
+  top:10px;
+  font-size:1.5rem;
+  cursor:pointer;
+}
+
+#app {
+  padding-bottom:80px; /* Safari bottom bar safety */
+}
+
+.page {
+  padding:10px;
+}
+
+.topNav button {
+  width:100%;
+  padding:10px;
+  font-size:1rem;
+  background:#000;
+  color:var(--gold);
+  border:1px solid var(--gold);
+  border-radius:8px;
+  margin-bottom:10px;
+}
+
+#cases {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
+  gap:10px;
+}
+
+.case {
+  height:70px;
+  background:linear-gradient(#eee,var(--silver));
+  color:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.case.opened {
+  background:var(--red);
+  color:#fff;
+  border-radius:50%;
+}
+
+.case.disabled {
+  opacity:.5;
+  pointer-events:none;
+}
+
+#board {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.value {
+  padding:6px;
+  text-align:center;
+  border:1px solid var(--gold);
+  border-radius:6px;
+  background:#000;
+}
+
+.value.gone {
+  background:#333;
+  color:#777;
+  text-decoration:line-through;
+}
+
+#modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+
+#modalContent {
+  background:#111;
+  border:2px solid var(--gold);
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+  max-width:380px;
+  text-align:center;
+}
+
+button {
+  margin:8px;
+  padding:10px 18px;
+  font-size:1rem;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.deal { background:var(--gold); color:#000; }
+.nodeal { background:#444; color:#fff; }
+
+</style>
+</head>
+<body>
+
+<header>
+  DEAL OR NO DEAL
+  <span id="trophy" onclick="showHighScores()">🏆</span>
+</header>
+
+<div id="app">
+  <div id="casesPage" class="page">
+    <div class="topNav">
+      <button onclick="togglePage()">Board</button>
+    </div>
+    <div id="cases"></div>
+  </div>
+
+  <div id="boardPage" class="page" style="display:none">
+    <div class="topNav">
+      <button onclick="togglePage()">Cases</button>
+    </div>
+    <div id="board"></div>
+  </div>
+</div>
+
+<div id="modal"><div id="modalContent"></div></div>
+
+<audio id="openSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<audio id="bankerSound" src="https://actions.google.com/sounds/v1/alarms/medium_bell_ringing_near.ogg"></audio>
+<audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const values=[0.01,1,5,10,25,50,75,100,200,300,400,500,750,1000,5000,10000,25000,50000,75000,100000,200000,300000,400000,500000,750000,1000000];
+let cases=[],playerCase=null,opened=0,round=0;
+const rounds=[6,5,4,3,2,1];
+let showingCases=true;
+let highScores=[];
+
+const casesDiv=document.getElementById("cases");
+const boardDiv=document.getElementById("board");
+const modal=document.getElementById("modal");
+const modalContent=document.getElementById("modalContent");
+
+function shuffle(a){return a.sort(()=>Math.random()-.5);}
+
+function togglePage(){
+  showingCases=!showingCases;
+  document.getElementById("casesPage").style.display=showingCases?"block":"none";
+  document.getElementById("boardPage").style.display=showingCases?"none":"block";
+}
+
+//document.addEventListener("touchend",()=>togglePage());
+
+function startGame(){
+  casesDiv.innerHTML="";
+  boardDiv.innerHTML="";
+  modal.style.display="none";
+  playerCase=null;
+  opened=0;
+  round=0;
+
+  const shuffled=shuffle([...values]);
+  cases=shuffled.map((v,i)=>({id:i+1,value:v,opened:false}));
+
+  cases.forEach(c=>{
+    const d=document.createElement("div");
+    d.className="case";
+    d.textContent=c.id;
+    d.onclick=()=>selectCase(c,d);
+    c.el=d;
+    casesDiv.appendChild(d);
+  });
+
+  values.forEach(v=>{
+    const d=document.createElement("div");
+    d.className="value";
+    d.textContent="$"+v.toLocaleString();
+    d.dataset.value=v;
+    boardDiv.appendChild(d);
+  });
+
+  showMessage("Choose your case");
+}
+
+function selectCase(c){
+  if(!playerCase){
+    playerCase=c;
+    c.el.classList.add("disabled");
+    return;
+  }
+  if(c.opened||c===playerCase) return;
+  openCase(c);
+}
+
+function openCase(c){
+  document.getElementById("openSound").play();
+  c.opened=true;
+  opened++;
+  c.el.classList.add("opened");
+  c.el.textContent="$"+c.value.toLocaleString();
+
+  [...boardDiv.children].find(v=>v.dataset.value==c.value)?.classList.add("gone");
+
+  const unopened=cases.filter(x=>!x.opened).length;
+  if(unopened===2){
+    finalChoice();
+    return;
+  }
+  if(opened>=rounds[round]) bankerOffer();
+}
+
+function bankerValue(){
+  const remaining=cases.filter(c=>!c.opened).map(c=>c.value);
+  const avg=remaining.reduce((a,b)=>a+b,0)/remaining.length;
+  const pressure=0.75+round*0.05;
+  return Math.round(avg*pressure);
+}
+
+function bankerOffer(){
+  document.getElementById("bankerSound").play();
+  const offer=bankerValue();
+  modalContent.innerHTML=`
+    <h2>Banker Offer</h2>
+    <p><strong>$${offer.toLocaleString()}</strong></p>
+    <button class="deal" onclick="endGame(${offer})">DEAL</button>
+    <button class="nodeal" onclick="noDeal()">NO DEAL</button>`;
+  modal.style.display="flex";
+}
+
+function noDeal(){
+  modal.style.display="none";
+  opened=0;
+  round++;
+}
+
+function finalChoice(){
+  modalContent.innerHTML=`
+    <h2>Final Choice</h2>
+    <button class="deal" onclick="reveal(true)">My Case</button>
+    <button class="nodeal" onclick="reveal(false)">Other Case</button>`;
+  modal.style.display="flex";
+}
+
+function reveal(keep){
+  const other=cases.find(c=>!c.opened&&c!==playerCase);
+  endGame(keep?playerCase.value:other.value);
+}
+
+function endGame(amount){
+  document.getElementById("winSound").play();
+  checkHighScore(amount);
+  modalContent.innerHTML=`
+    <h2>Congratulations!</h2>
+    <p>You won <strong>$${amount.toLocaleString()}</strong></p>
+    <button class="deal" onclick="startGame()">Play Again</button>`;
+  modal.style.display="flex";
+}
+
+function showMessage(msg){
+  modalContent.innerHTML=`<h2>${msg}</h2>`;
+  modal.style.display="flex";
+  setTimeout(()=>modal.style.display="none",1200);
+}
+
+/* High Scores */
+function checkHighScore(score){
+  if(highScores.length<10||score>highScores.at(-1)?.score){
+    const name=prompt("High Score! Enter your name:");
+    if(name){
+      highScores.push({name,score});
+      highScores.sort((a,b)=>b.score-a.score);
+      if(highScores.length>10) highScores.length=10;
+      exportCSV();
+    }
+  }
+}
+
+function exportCSV(){
+  let csv="Name,Score\n";
+  highScores.forEach(s=>csv+=`${s.name},${s.score}\n`);
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="DOND-HighScores.csv";
+  a.click();
+}
+
+function showHighScores(){
+  let html="<h2>High Scores</h2><ol>";
+  for(let i=0;i<10;i++){
+    const s=highScores[i];
+    html+=`<li>${s?`${s.name} - $${s.score.toLocaleString()}`:"—"}</li>`;
+  }
+  html+="</ol><button class='deal' onclick='modal.style.display=\"none\"'>Close</button>";
+  modalContent.innerHTML=html;
+  modal.style.display="flex";
+}
+
+startGame();
+</script>
+
+</body>
+</html>
