@@ -84,7 +84,7 @@ header {
 .case.opened {
   background:var(--red);
   color:#fff;
-  border-radius:50%;
+  border-radius:8px;
 }
 
 .case.disabled {
@@ -176,7 +176,7 @@ button {
 <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
-const values=[0.01,1,5,10,25,50,75,100,200,300,400,500,750,1000,5000,10000,25000,50000,75000,100000,200000,300000,400000,500000,750000,1000000];
+const values=[0.01,1000,1,5000,5,10000,10,25000,25,50000,50,75000,75,100000,100,200000,200,300000,300,400000,400,500000,500,750000,750,1000000];
 let cases=[],playerCase=null,opened=0,round=0;
 const rounds=[6,5,4,3,2,1];
 let showingCases=true;
