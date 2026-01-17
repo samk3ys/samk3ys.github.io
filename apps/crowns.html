@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Crowns</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#f7f5fb;
+  --fg:#2b2436;
+  --accent:#7a4fd8;
+  --gold:#f5c84c;
+  --card:#ffffff;
+}
+[data-theme="dark"]{
+  --bg:#1c1726;
+  --fg:#f0ecfa;
+  --card:#2a2238;
+}
+body{
+  margin:0;
+  font-family:'Cinzel', serif;
+  background:var(--bg);
+  color:var(--fg);
+  display:flex;
+  justify-content:center;
+}
+#app{
+  width:100%;
+  max-width:900px;
+  padding:10px;
+  text-align:center;
+}
+h1{
+  font-size:2.8em;
+  color:var(--gold);
+  text-shadow:1px 1px var(--accent);
+  padding:0px;
+  margin:0px;
+  gap:0px;
+}
+p{
+  padding:0px;
+  margin:0px 0 10px 0;
+}
+
+#gear{
+  position:absolute;
+  top:10px;
+  right:10px;
+  font-size:1.6em;
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--gold);
+}
+.view{display:none;}
+.view.active{display:block;}
+.card{
+  background:var(--card);
+  border:3px solid var(--accent);
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 0 12px rgba(122,79,216,.4);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid var(--accent);
+  padding:4px;
+  text-align:center;
+}
+input[type="number"],input[type="text"]{
+  width:95%;
+  box-sizing:border-box;
+  border:2px solid var(--gold);
+  background:transparent;
+  color:var(--fg);
+  text-align:center;
+}
+button{
+  background:var(--accent);
+  color:var(--gold);
+  border:none;
+  border-radius:6px;
+  padding:6px 14px;
+  margin:6px;
+}
+.settings-button{
+  text-shadow:1px 1px var(--accent);
+}
+.hidden{display:none;}
+.bold{font-weight:700;}
+.red{color:#e14b4b;}
+.titleText{
+  font-size:1.8em;
+  color:var(--gold);
+  text-shadow:1px 1px var(--accent);
+  margin:10px 0 0 0;
+}
+#roundBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:1.5em;
+  color:var(--gold);
+  text-shadow:1px 1px var(--accent);
+}
+
+@media (hover:hover){
+  button:hover{ 
+    transform:scale(0.9);
+  }
+}
+</style>
+</head>
+
+
+<body>
+<div id="app">
+<button id="gear" class="settings-button">⚙︎</button>
+<h1>5 Crowns</h1>
+<p>👑 👑 👑 👑 👑</p>
+
+<div id="startView" class="view active card">
+<div class="titleText">Players</div>
+<table id="playerTable"><tbody></tbody></table>
+<button onclick="addPlayer()">+Add Player</button>
+<button onclick="startGame()">Start Game</button>
+</div>
+
+<div id="gameView" class="view card">
+<div id="roundBar">
+<button onclick="prevRound()">⭅</button>
+<div id="roundDisplay">Round: 3</div>
+<button onclick="nextRound()">⭆</button>
+</div>
+<table id="scoreTable"></table>
+<button id="endBtn" onclick="endGamePrompt()">End Game</button>
+<button id="againBtn" class="hidden" onclick="playAgain()">Play Again</button>
+<button id="changeBtn" class="hidden" onclick="changePlayers()">Change Players</button>
+</div>
+
+<div id="settingsView" class="view card">
+<div class="titleText">Settings</div>
+<button id="themeBtn" onclick="toggleTheme()">Dark 🌙</button>
+<div class="titleText">Rules</div>
+<p>Rules for the game...</p>
+</div>
+
+<script>
+let players=[],round=3,lastView="startView",theme="light";
+
+gear.onclick=()=>{
+  if(settingsView.classList.contains("active")) showView(lastView);
+  else{lastView=document.querySelector(".view.active").id;showView("settingsView");}
+};
+
+function showView(v){
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+ document.getElementById(v).classList.add("active");
+}
+
+function addPlayer(name=""){
+ players.push(name);renderPlayers();
+ setTimeout(()=>playerTable.querySelector("input:last-of-type").focus(),50);
+}
+
+function renderPlayers(){
+  let tb=playerTable.querySelector("tbody"); tb.innerHTML="";
+  players.forEach((p,i)=>{
+    let tr=document.createElement("tr");
+    tr.innerHTML=`<td>${i+1}</td>
+    <td><input value="${p}" oninput="players[${i}]=this.value"></td>
+    <td>
+      <button onclick="move(${i},-1)">↑</button>
+      <button onclick="move(${i},1)">↓</button>
+      <button onclick="removeP(${i})">-</button>
+    </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function move(i,d){
+  let j=i+d; if(j<0||j>=players.length) return;
+  [players[i],players[j]]=[players[j],players[i]]; renderPlayers();
+}
+
+function playerEnter(e,i){
+ if(e.key==="Enter"){
+  if(i==players.length-1) addPlayer();
+  else playerTable.querySelectorAll("input")[i+1].focus();
+ }
+}
+
+function removeP(i){
+  players.splice(i,1);
+  renderPlayers();
+}
+
+function startGame(){
+ players=players.filter(p=>p.trim()!="");
+ if(players.length==0) {
+   return alert("Add players!");
+ }
+ round=3;
+ buildTable();
+ endBtn.style.display="flex";
+ againBtn.style.display="none";
+ changeBtn.style.display="none";
+ showView("gameView");
+}
+
+function buildTable(){
+ scoreTable.innerHTML="<tr><th>Round</th>"+players.map(p=>"<th>"+p+"</th>").join("")+"</tr>";
+ for(let r=3;r<=13;r++){
+  scoreTable.innerHTML+=`<tr data-r="${r}"><td>${r}</td>`+
+  players.map(()=>"<td></td>").join("")+"</tr>";
+ }
+ scoreTable.innerHTML+=`<tr id="totalRow"><td>Total</td>`+players.map(()=>"<td></td>").join("")+"</tr>";
+ scoreTable.innerHTML+=`<tr id="placeRow"><td>Place</td>`+players.map(()=>"<td></td>").join("")+"</tr>";
+ setInputs();
+}
+
+function setInputs(){
+ document.querySelectorAll("tr[data-r]").forEach(tr=>{
+  let r=+tr.dataset.r;
+  tr.querySelectorAll("td").forEach((td,i)=>{
+   if(i==0)return;
+   if(r==round)td.innerHTML=`<input type="number" onkeydown="scoreEnter(event)">`;
+  });
+ });
+ if(round<=13){
+   roundDisplay.textContent="Round: "+round;
+ }
+}
+
+function saveLastRound(){
+ document.querySelectorAll("tr[data-r]").forEach(tr=>{
+  let r=+tr.dataset.r;
+  tr.querySelectorAll("td").forEach((td,i)=>{
+   if(i==0)return;
+   if(r==round)td.innerHTML=`<input type="number" onkeydown="scoreEnter(event)">`;
+  });
+ });
+ if(round<=13){
+   roundDisplay.textContent="Round: "+round;
+ }
+}
+
+function scoreEnter(e){
+ if(e.key==="Enter"){
+  let inputs=[...document.querySelectorAll(`tr[data-r="${round}"] input`)];
+  let idx=inputs.indexOf(e.target);
+  if(idx<inputs.length-1)inputs[idx+1].focus();
+  else e.target.blur();
+ }
+}
+
+function saveRound(){
+ let tr=document.querySelector(`tr[data-r="${round}"]`);
+ tr.querySelectorAll("td").forEach((td,i)=>{
+  if(i==0)return;
+  let v=td.querySelector("input")?.value||0;
+  td.textContent=v;
+ });
+ updateTotals();
+}
+
+function prevRound(){ 
+  if(round>3) { 
+    saveRound();
+    round--;
+    setInputs();
+  }
+}
+
+function nextRound(){ 
+  if(round >= 13){
+    finishGame();
+  } else {
+    saveRound();
+    round++;
+    setInputs();
+  }
+}
+
+function updateTotals(){
+ let totals=Array(players.length).fill(0);
+ document.querySelectorAll("tr[data-r]").forEach(tr=>{
+  let r=+tr.dataset.r;
+  if(r<=round) tr.querySelectorAll("td").forEach((td,i)=>{if(i>0)totals[i-1]+=+td.textContent||0;});
+ });
+ totalRow.querySelectorAll("td").forEach((td,i)=>{if(i>0)td.textContent=totals[i-1];});
+}
+
+function endGamePrompt(){ 
+  if(confirm("Would you like to end the game?")) {
+    finishGame();
+  }
+}
+
+function finishGame(){
+ saveRound(); 
+ // Adjust button visibility and title text
+ endBtn.style.display="none";
+ againBtn.style.display="flex";
+ changeBtn.style.display="flex";
+ roundDisplay.innerHTML="Game Over!";
+ 
+ // Calculate and assign rankings
+ // get totals row 
+ let totals=[...totalRow.querySelectorAll("td")].slice(1).map(td=>+td.textContent);
+ // order players
+ let sorted=[...totals].slice().sort((a,b)=>a-b);
+  // assign rank and render 
+  placeRow.querySelectorAll("td").forEach((td,i)=>{if(i>0)td.textContent=sorted.indexOf(totals[i-1])+1;});
+ let min=Math.min(...totals);
+ totals.forEach((t,i)=>{ if(t==min){ scoreTable.querySelectorAll("tr").forEach(r=>r.children[i+1].classList.add("bold"));}});
+}
+
+function playAgain(){
+  round=3;
+  buildTable();
+  endBtn.style.display="flex";
+  againBtn.style.display="none";
+  changeBtn.style.display="none";
+}
+
+function changePlayers(){
+  round=3;
+  showView("startView");
+}
+
+function toggleTheme(){
+ theme=theme=="light"?"dark":"light";
+ document.documentElement.dataset.theme=theme;
+ themeBtn.textContent=theme=="light"?"Dark 🌙":"Light ☀️";
+}
+
+addPlayer();
+</script>
+</div>
+</body>
+</html>
