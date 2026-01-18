@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Crowns</title>
+<title>👑Crowns</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 
@@ -90,6 +90,15 @@ button{
   padding:6px 14px;
   margin:6px;
 }
+.halfButton{
+  width:45%;
+}
+.fullButton{
+  width:95%;
+  text-align:center;
+  justify-content:center;
+  align-items:center;
+}
 .settings-button{
   text-shadow:1px 1px var(--accent);
 }
@@ -111,6 +120,13 @@ button{
   text-shadow:1px 1px var(--accent);
 }
 
+#finishOptions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:0px;
+}
+
 @media (hover:hover){
   button:hover{ 
     transform:scale(0.9);
@@ -129,8 +145,8 @@ button{
 <div id="startView" class="view active card">
 <div class="titleText">Players</div>
 <table id="playerTable"><tbody></tbody></table>
-<button onclick="addPlayer()">+Add Player</button>
-<button onclick="startGame()">Start Game</button>
+<button class="halfButton" onclick="addPlayer()">+Add Player</button>
+<button class="halfButton" onclick="startGame()">Start Game</button>
 </div>
 
 <div id="gameView" class="view card">
@@ -140,9 +156,11 @@ button{
 <button onclick="nextRound()">⭆</button>
 </div>
 <table id="scoreTable"></table>
-<button id="endBtn" onclick="endGamePrompt()">End Game</button>
-<button id="againBtn" class="hidden" onclick="playAgain()">Play Again</button>
-<button id="changeBtn" class="hidden" onclick="changePlayers()">Change Players</button>
+<button id="endBtn" class="fullButton" onclick="endGamePrompt()">End Game</button>
+<div id="finishOptions" class="hidden">
+<button id="againBtn" class="halfButton" onclick="playAgain()">Play Again</button>
+<button id="changeBtn" class="halfButton" onclick="changePlayers()">Change Players</button>
+</div>
 </div>
 
 <div id="settingsView" class="view card">
@@ -153,7 +171,7 @@ button{
 </div>
 
 <script>
-let players=[],round=3,lastView="startView",theme="light";
+let players=[],round=3,farthestRound=3;lastView="startView",theme="light";
 
 gear.onclick=()=>{
   if(settingsView.classList.contains("active")) showView(lastView);
@@ -208,10 +226,10 @@ function startGame(){
    return alert("Add players!");
  }
  round=3;
+ farthestRound=3;
  buildTable();
  endBtn.style.display="flex";
- againBtn.style.display="none";
- changeBtn.style.display="none";
+ finishOptions.style.display="none";
  showView("gameView");
 }
 
@@ -230,13 +248,38 @@ function setInputs(){
  document.querySelectorAll("tr[data-r]").forEach(tr=>{
   let r=+tr.dataset.r;
   tr.querySelectorAll("td").forEach((td,i)=>{
-   if(i==0)return;
-   if(r==round)td.innerHTML=`<input type="number" onkeydown="scoreEnter(event)">`;
+    if(i==0)return;
+    // If this cell currently has an input, freeze it to text
+    const input = td.querySelector("input");
+    if(input){
+      td.textContent = input.value || 0;
+    }
   });
  });
+ // Preserve previous values
+ saveBackwardRound(round);
+ 
  if(round<=13){
    roundDisplay.textContent="Round: "+round;
  }
+}
+
+function saveBackwardRound(r){
+  const tr = document.querySelector(`tr[data-r="${r}"]`);
+  if(!tr) return;
+  tr.querySelectorAll("td").forEach((td,i)=>{
+    if(i === 0) return;
+
+    const existingValue = td.textContent.trim();
+
+    td.innerHTML = `
+      <input 
+        type="number"
+        value="${existingValue}"
+        onkeydown="scoreEnter(event)"
+      >
+    `;
+  });
 }
 
 function saveLastRound(){
@@ -284,7 +327,12 @@ function nextRound(){
     finishGame();
   } else {
     saveRound();
-    round++;
+    if(round==farthestRound){
+      farthestRound++;
+      round++;
+    } else {
+      round++;
+    }
     setInputs();
   }
 }
@@ -293,7 +341,7 @@ function updateTotals(){
  let totals=Array(players.length).fill(0);
  document.querySelectorAll("tr[data-r]").forEach(tr=>{
   let r=+tr.dataset.r;
-  if(r<=round) tr.querySelectorAll("td").forEach((td,i)=>{if(i>0)totals[i-1]+=+td.textContent||0;});
+  if(r<=farthestRound) tr.querySelectorAll("td").forEach((td,i)=>{if(i>0)totals[i-1]+=+td.textContent||0;});
  });
  totalRow.querySelectorAll("td").forEach((td,i)=>{if(i>0)td.textContent=totals[i-1];});
 }
@@ -301,15 +349,17 @@ function updateTotals(){
 function endGamePrompt(){ 
   if(confirm("Would you like to end the game?")) {
     finishGame();
+    saveRound();
+    round = farthestRound;
   }
 }
 
 function finishGame(){
  saveRound(); 
+ round = 14; // Prevents going backward after game end
  // Adjust button visibility and title text
  endBtn.style.display="none";
- againBtn.style.display="flex";
- changeBtn.style.display="flex";
+ finishOptions.style.display="flex";
  roundDisplay.innerHTML="Game Over!";
  
  // Calculate and assign rankings
@@ -325,14 +375,15 @@ function finishGame(){
 
 function playAgain(){
   round=3;
+  farthestRound=3;
   buildTable();
   endBtn.style.display="flex";
-  againBtn.style.display="none";
-  changeBtn.style.display="none";
+  finishOptions.style.display="none";
 }
 
 function changePlayers(){
   round=3;
+  farthestRound=3;
   showView("startView");
 }
 
