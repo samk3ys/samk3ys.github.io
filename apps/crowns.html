@@ -119,6 +119,11 @@ button{
   color:var(--gold);
   text-shadow:1px 1px var(--accent);
 }
+#roundDisplay{
+  text-align:center;
+  justify-content:center;
+  align-items:center;
+}
 
 #finishOptions{
   display:flex;
@@ -140,7 +145,7 @@ button{
 <div id="app">
 <button id="gear" class="settings-button">⚙︎</button>
 <h1>5 Crowns</h1>
-<p>👑 👑 👑 👑 👑</p>
+<p>👑   👑   👑   👑   👑</p>
 
 <div id="startView" class="view active card">
 <div class="titleText">Players</div>
@@ -151,9 +156,9 @@ button{
 
 <div id="gameView" class="view card">
 <div id="roundBar">
-<button onclick="prevRound()">⭅</button>
+<button id="previousBtn" onclick="prevRound()">⭅</button>
 <div id="roundDisplay">Round: 3</div>
-<button onclick="nextRound()">⭆</button>
+<button id="nextBtn" onclick="nextRound()">⭆</button>
 </div>
 <table id="scoreTable"></table>
 <button id="endBtn" class="fullButton" onclick="endGamePrompt()">End Game</button>
@@ -171,7 +176,7 @@ button{
 </div>
 
 <script>
-let players=[],round=3,farthestRound=3;lastView="startView",theme="light";
+let players=[],round=3,farthestRound=3,lastView="startView",theme="light";
 
 gear.onclick=()=>{
   if(settingsView.classList.contains("active")) showView(lastView);
@@ -221,16 +226,19 @@ function removeP(i){
 }
 
 function startGame(){
- players=players.filter(p=>p.trim()!="");
- if(players.length==0) {
-   return alert("Add players!");
- }
- round=3;
- farthestRound=3;
- buildTable();
- endBtn.style.display="flex";
- finishOptions.style.display="none";
- showView("gameView");
+  players=players.filter(p=>p.trim()!="");
+  if(players.length==0) {
+    return alert("Add players!");
+  }
+  round=3;
+  farthestRound=3;
+  buildTable();
+  endBtn.style.display="flex";
+  previousBtn.style.display="flex";
+  nextBtn.style.display="flex";
+  roundBar.style.justifyContent="space-between";
+  finishOptions.style.display="none";
+  showView("gameView");
 }
 
 function buildTable(){
@@ -355,22 +363,25 @@ function endGamePrompt(){
 }
 
 function finishGame(){
- saveRound(); 
- round = 14; // Prevents going backward after game end
- // Adjust button visibility and title text
- endBtn.style.display="none";
- finishOptions.style.display="flex";
- roundDisplay.innerHTML="Game Over!";
- 
- // Calculate and assign rankings
- // get totals row 
- let totals=[...totalRow.querySelectorAll("td")].slice(1).map(td=>+td.textContent);
- // order players
- let sorted=[...totals].slice().sort((a,b)=>a-b);
+  saveRound(); 
+  round = 14; // Prevents going backward after game end
+  // Adjust button visibility and title text
+  endBtn.style.display="none";
+  previousBtn.style.display="none";
+  nextBtn.style.display="none";
+  roundBar.style.justifyContent="center";
+  finishOptions.style.display="flex";
+  roundDisplay.innerHTML="Game Over!";
+  
+  // Calculate and assign rankings
+  // get totals row 
+  let totals=[...totalRow.querySelectorAll("td")].slice(1).map(td=>+td.textContent);
+  // order players
+  let sorted=[...totals].slice().sort((a,b)=>a-b);
   // assign rank and render 
   placeRow.querySelectorAll("td").forEach((td,i)=>{if(i>0)td.textContent=sorted.indexOf(totals[i-1])+1;});
- let min=Math.min(...totals);
- totals.forEach((t,i)=>{ if(t==min){ scoreTable.querySelectorAll("tr").forEach(r=>r.children[i+1].classList.add("bold"));}});
+  let min=Math.min(...totals);
+  totals.forEach((t,i)=>{ if(t==min){ scoreTable.querySelectorAll("tr").forEach(r=>r.children[i+1].classList.add("bold"));}});
 }
 
 function playAgain(){
@@ -378,6 +389,9 @@ function playAgain(){
   farthestRound=3;
   buildTable();
   endBtn.style.display="flex";
+  previousBtn.style.display="flex";
+  nextBtn.style.display="flex";
+  roundBar.style.justifyContent="space-between";
   finishOptions.style.display="none";
 }
 
