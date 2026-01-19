@@ -256,6 +256,44 @@ body{
     width:90% 
 }
 
+#appsBG{       /* Background for Apps page */
+    display: block;
+    background-color: black;
+    margin-top: 20px;
+    padding: 30px;
+    border-radius: 3rem;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    
+}
+.appButton{      /* Buttons to other pages */
+    padding: 5px;
+    margin: 10px;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 50%;
+    height: 3rem;
+    background-color: rgba(64,64,64,1);   /* RGB color and Alpha transparency percentage [0,1] */
+    color: white;
+    border: 0px solid white;                 /* Border (unaffected by "background-color" */
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 10px;
+    transition: background-color 1500ms, color 1500ms;
+}
+.appButton:hover{
+    background-color: #37c0f6;
+    color:#000;
+    cursor:pointer;
+    transition:background-color 500ms, color 500ms;
+}
 
 /* Footer / Social Media Links */
 #footer{

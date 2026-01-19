@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+ --bg:#1f7a44;
+ --panel:#222;
+ --text:#fff;
+}
+body.light{
+ --bg:#f0f0f0;
+ --panel:#fff;
+ --text:#111;
+}
+body{
+ margin:0; background:var(--bg); color:var(--text);
+ font-family:system-ui;
+}
+#overlay{
+ position:absolute; inset:0; pointer-events:none; display:none;
+ background:
+  repeating-linear-gradient(45deg,rgba(255,255,255,.1) 0 1px,transparent 1px 100px),
+  repeating-linear-gradient(-45deg,rgba(255,255,255,.1) 0 1px,transparent 1px 100px);
+}
+#overlay:after{
+ content:"♠ ♦ ♣ ♥"; position:absolute; inset:0;
+ display:grid; place-items:center;
+ opacity:.08; font-size:60px;
+}
+#app{position:absolute;inset:0;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px}
+h1{margin:0;color:gold}
+.view{flex:1;display:none;flex-direction:column}
+.view.active{display:flex}
+#diceArea{flex:1;display:flex;justify-content:center;align-items:center;gap:16px}
+.die{
+ width:80px;height:80px;border-radius:12px;
+ border:3px solid black;
+ display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);
+ padding:10px;background:white;cursor:pointer;
+}
+.die.locked{border-color:yellow}
+.pip{width:12px;height:12px;border-radius:50%;margin:auto}
+.controls{display:flex;padding:10px;gap:10px}
+#rollBtn{flex:1;height:60px;font-size:22px}
+#addBtn{width:60px;border-radius:50%;font-size:28px}
+
+#settingsView,#editView{background:var(--panel)}
+.closeX{background:none;border:none;color:var(--text);font-size:22px}
+.bottomBtns{margin-top:auto;padding:10px}
+.bottomBtns button{width:100%;height:60px;font-size:20px}
+
+#editHeader{display:flex;align-items:center;justify-content:center;position:relative}
+#backEdit{
+ position:absolute;left:10px;
+ width:36px;height:36px;border-radius:50%;
+}
+
+.row{display:flex;align-items:center;padding:6px 10px;gap:6px}
+.rightSide{margin-left:auto;display:flex;gap:6px}
+</style>
+</head>
+<body>
+<div id="overlay"></div>
+<div id="app">
+<header>
+<h1>Dice</h1>
+<div id="gear">⚙</div>
+</header>
+
+<div id="mainView" class="view active">
+<div id="diceArea"></div>
+<div class="controls">
+<button id="rollBtn">ROLL</button>
+<button id="addBtn">+</button>
+</div>
+</div>
+
+<div id="settingsView" class="view">
+<header>
+<h2>Settings</h2>
+<button class="closeX">✕</button>
+</header>
+<div style="padding:10px">
+<button id="themeBtn">🌙</button><br><br>
+<select id="bgSel">
+<option value="#1f7a44">Green</option>
+<option value="#7a1f1f">Red</option>
+<option value="#1f3f7a">Blue</option>
+<option value="#222">Dark</option>
+</select><br><br>
+<label><input type="checkbox" id="suitOverlay"> Overlay - suits</label>
+</div>
+<div class="bottomBtns">
+<button id="closeSettings">Close Settings</button>
+</div>
+</div>
+
+<div id="editView" class="view">
+<div id="editHeader">
+<button id="backEdit">&lt;</button>
+<h2>Edit Dice</h2>
+</div>
+<div id="diceList"></div>
+<div class="bottomBtns">
+<button id="addDiceBtn">Add Dice</button>
+</div>
+</div>
+
+<script>
+let dice=[{id:1,face:1,range:[1,2,3,4,5,6],locked:false,main:"#fff",pip:"#000",border:"yellow"},
+{id:2,face:1,range:[1,2,3,4,5,6],locked:false,main:"#fff",pip:"#000",border:"yellow"}];
+
+const diceArea=document.getElementById("diceArea");
+const diceList=document.getElementById("diceList");
+
+function drawDice(){
+ diceArea.innerHTML="";
+ dice.forEach(d=>{
+  let el=document.createElement("div");
+  el.className="die"+(d.locked?" locked":"");
+  el.style.background=d.main;
+  el.style.borderColor=d.locked?d.border:"black";
+  el.onclick=()=>{d.locked=!d.locked;drawDice();}
+  renderFace(el,d);
+  diceArea.appendChild(el);
+ });
+}
+function renderFace(el,d){
+ el.innerHTML="";
+ let map={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+ (map[d.face]||[]).forEach(i=>{
+  let p=document.createElement("div");
+  p.className="pip";
+  p.style.background=d.pip;
+  p.style.gridArea=(Math.floor(i/3)+1)+"/"+(i%3+1);
+  el.appendChild(p);
+ });
+}
+
+function drawEdit(){
+ diceList.innerHTML="";
+ dice.forEach(d=>{
+  let row=document.createElement("div");
+  row.className="row";
+  row.innerHTML=`#${d.id} Faces: ${d.range.join(",")}`;
+  diceList.appendChild(row);
+ });
+}
+
+let rolling=false;
+rollBtn.onclick=()=>{
+ if(rolling)return;
+ rolling=true; rollBtn.disabled=true; rollBtn.textContent="ROLLING";
+ let t=setInterval(()=>{
+  dice.forEach(d=>{if(!d.locked)d.face=d.range[Math.random()*d.range.length|0]});
+  drawDice();
+ },80);
+ setTimeout(()=>{clearInterval(t);rolling=false;rollBtn.disabled=false;rollBtn.textContent="ROLL";},2000);
+};
+
+function toggle(v){
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+ v.classList.add("active");
+}
+gear.onclick=()=>{
+ settingsView.classList.contains("active")?toggle(mainView):toggle(settingsView);
+};
+document.querySelector(".closeX").onclick=()=>toggle(mainView);
+closeSettings.onclick=()=>toggle(mainView);
+addBtn.onclick=()=>{drawEdit();toggle(editView)};
+backEdit.onclick=()=>toggle(mainView);
+
+bgSel.onchange=()=>document.body.style.background=bgSel.value;
+suitOverlay.onchange=e=>overlay.style.display=e.target.checked?"block":"none";
+themeBtn.onclick=()=>{
+ document.body.classList.toggle("light");
+ themeBtn.textContent=document.body.classList.contains("light")?"☀":"🌙";
+};
+
+addDiceBtn.onclick=()=>{
+ dice.push({id:dice.length+1,face:1,range:[1,2,3,4,5,6],locked:false,main:"#fff",pip:"#000",border:"yellow"});
+ drawEdit(); drawDice();
+};
+
+drawDice();
+drawEdit();
+</script>
+</body>
+</html>
