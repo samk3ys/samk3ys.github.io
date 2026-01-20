@@ -313,6 +313,13 @@ body{
     cursor:pointer;
     transition:background-color 500ms, color 500ms;
 }
+.postTitle {
+    display:inline;
+}
+.postDate {
+    display:inline; 
+    float:right;
+}
 
 /* Footer / Social Media Links */
 #footer{
