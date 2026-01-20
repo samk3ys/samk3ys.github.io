@@ -398,7 +398,7 @@ body{
         font-size:medium;
     }
     .contactLinks{
-        width: 18em;
+        width: 21em;    /* #buttons * (buttonWidth + 2*buttonMargin) = 3 per button*/
     }
     .social {
         margin: 0.5em;
