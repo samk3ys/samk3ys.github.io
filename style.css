@@ -208,12 +208,19 @@ body{
 }
 
 /* Slideshow for each project. Start slideshow images as invisible */
-.mySlides0, .mySlides1, .mySlides2, .mySlides3 {display: none}
+.mySlides0, .mySlides1, .mySlides2, .mySlides3, .mySlides4, .mySlides5, .mySlides6, .mySlides7 {display: none}
 
 .slideshow-container {	/* Slideshow container */
   max-width: 1000px;
   position: relative;
   margin: auto;
+}
+
+.slide {
+    width:50%; 
+    margin-left:auto; 
+    margin-right:auto; 
+    display:block;
 }
 
 .prevSlide, .nextSlide {	/* Next & previous slide buttons */
@@ -268,15 +275,28 @@ body{
     justify-content: center;
     
 }
-.appButton{      /* Buttons to other pages */
-    padding: 5px;
-    margin: 10px;
+.appButtonContainer{
     display: flex;
     align-content: center;
     align-items: center;
     text-align: center;
     justify-content: center;
     margin: 0 auto;
+    height: 3rem;
+}
+.appButtonContainer > a {
+    display: flex; 
+    width: 50%;    
+}
+.appButton{
+    padding: 5px;
+    display: flex;
+    flex-grow: 1;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    margin: 10px auto;
     width: 50%;
     height: 3rem;
     background-color: rgba(64,64,64,1);   /* RGB color and Alpha transparency percentage [0,1] */
@@ -290,7 +310,6 @@ body{
 }
 .appButton:hover{
     background-color: #37c0f6;
-    color:#000;
     cursor:pointer;
     transition:background-color 500ms, color 500ms;
 }
@@ -326,6 +345,7 @@ body{
 .social{        /* Social media button (use <a> tag around) */
     margin: 1em;
     width: 3em;
+    height: 3em;
     border-radius: 1.5em;
     padding: 4px;
     opacity: 0.5;
@@ -357,8 +377,9 @@ body{
     }
     .social {
         margin: 0.5em;
+        width: 2em;
         height: 2em;
-        border-radius: 1.5em;
+        border-radius: 1em;
         padding: 1px;
     }
     /*.content{
@@ -381,6 +402,9 @@ body{
     }
     .project{       /* individual project card */
         padding: 20px 10px;
+    }
+    .slide{
+        width: 90%;
     }
     #cv {           /* Background */
         padding: 20px 10px;

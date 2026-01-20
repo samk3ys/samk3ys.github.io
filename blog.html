@@ -57,30 +57,97 @@
 		
 			<ul id="projects">
 			
-				<!-- TEMPLATE
+				<!-- PROJECT / POST TEMPLATE
+				// Update XXX to unique number for each project (also add to script at bottom on file and separate style.css).
+				// Update YYY to filename of picture to display.
+
 				<li class="project">
 				  <div>
-					<h2 style="display:inline;">TITLE</h2>
-					<span style="display:inline; float:right;">DATE</span>
+					<h2 style="display:inline;"> TITLE </h2>
+					<span style="display:inline; float:right;"> DATE </span>
 				  </div>
-				  <div>
-					<img src="images/IMAGE" style=""/>
+				  <p>
+					INFO
+				  </p>
+				  <div class="slideshow-container">
+					<div class="mySlidesXXX">
+						<img src="images/YYY" class="slide">
+					</div>
+					<div class="mySlidesXXX">
+						<img src="images/YYY" class="slide">
+					</div>
+					<div class="mySlidesXXX">
+						<img src="images/YYY" class="slide">
+					</div>
+					<a class="prevSlide" onclick="plusSlides(-1, XXX)">&#10094;</a>
+					<a class="nextSlide" onclick="plusSlides( 1, XXX)">&#10095;</a>
 				  </div>
-				  <p>INFO</p>
 				</li>
+
 				-->
 				
+				<li class="project" data-date="202601">
+				  <div>
+					<h2 style="display:inline;">WEB APPS</h2>
+					<span style="display:inline; float:right;">Winter 2025/26</span>
+				  </div>
+				  <p>
+					I started making web applications to use while playing dice games with family.
+					I started utilizing LLM AI tools to learn more about web development and to provide a good base for these apps.
+					While working with these relatively early LLMs I have found that they make many mistakes and forget to preserve fixes from previous prompts.
+					A human coder's touch seems neceasary to actually make a functional app that fully realizes a vision.
+					However, these LLM-generated HTML files have been great starting blocks to reduce upfront effort. 
+					<br>
+					With assistance from LLMs I have found that I am able to quickly implement web apps for quality of life improvements. 
+					I have even been able to code functional web apps and put them online, for others to use, all from my phone.
+					<br>
+					The web apps I have made so far are score trackers for <a href="apps/qwixx.html"><i>Qwixx</i></a> (a dice game),
+					<a href="apps/farkle.html"><i>Farkle</i></a> (another dice game), and <a href="apps/crowns.html"><i>5 Crowns</i></a> (a card game).
+					I am also working on web apps for playing a version of <a href="apps/Deal.html"><i>Deal or No Deal</i></a> online and for rolling digital <a href="apps/Dice.html">dice</a>. 
+				  </p>
+				  <div class="slideshow-container">
+					<div class="mySlides5">
+						<img src="images/Qwixx.png" class="slide">
+					</div>
+					<div class="mySlides5">
+						<img src="images/Farkle.png" class="slide">
+					</div>
+					<div class="mySlides5">
+						<img src="images/5Crowns.png" class="slide">
+					</div>
+					<div class="mySlides5">
+						<img src="images/DealOrNoDeal.png" class="slide">
+					</div>
+					<div class="mySlides5">
+						<img src="images/Dice.png" class="slide">
+					</div>
+					<a class="prevSlide" onclick="plusSlides(-1, 5)">&#10094;</a> <!-- < Arrow -->
+					<a class="nextSlide" onclick="plusSlides( 1, 5)">&#10095;</a> <!-- > Arrow -->
+				  </div>
+				</li>
+
 				<li class="project" data-date="201906">
 				  <div>
 					<h2 style="display:inline;">THIS WEBSITE</h2>
 					<span style="display:inline; float:right;">Summer 2019</span>
 				  </div>
-				  <p>I started building this website in June 2019.
-					 It is intended to showcase my projects online.
-					 It helped market myself to find a job and improve my web development skills as well.
-					 The image below is what I came up with as a logo for myself. </p>
-				  <div class="slideshow">
-					<img src="images/logo.png" style="width:50%; margin-left:auto; margin-right:auto; display:block;"/>
+				  <p>
+					I started building this website in June 2019.
+					This page is intended to showcase my projects online as a sort of blog.
+					It helped improve my web development skills as well promote myself to find a job.
+					The images below are what I came up with as logos for myself. </p>
+				  <div class="slideshow-container">
+					<div class="mySlides4">
+						<img src="images/logo.png" class="slide">
+					</div>
+					<div class="mySlides4">
+						<img src="images/favicon.png" class="slide">
+					</div>
+					<div class="mySlides4">
+						<img src="images/KeyButtonRing.png" class="slide">
+					</div>
+					<a class="prevSlide" onclick="plusSlides(-1, 4)">&#10094;</a> <!-- < Arrow -->
+					<a class="nextSlide" onclick="plusSlides( 1, 4)">&#10095;</a> <!-- > Arrow -->
 				  </div>
 				</li>
 				
@@ -89,19 +156,20 @@
 					<h2 style="display:inline;">IEEE WORKBENCH</h2>
 					<span style="display:inline; float:right;">August 2019</span>
 				  </div>
-				  <p>During my junior year I became heavily involved with UK IEEE (Institute of Electrical and Electronic Engineers), especially the robotics team.
-					 The big problem throughout the year is we had no easy way to transport and store our tools and materials.
-					 So I designed a custom workbench that would fit our needs and be very flexible for any future needs.
-					 It has 3 drawers, a lot of pegboard space, a vice, castors for mobility, and it's modular!
-					 It comes apart so we can take it to robotics competitions if we want to.
-					 Then I spent most of August 2019 building the actual thing.
-					 I still need to do a few small things to it, but it is now at UK and being used!</p>
+				  <p>
+					During my junior year I became heavily involved with UK IEEE (Institute of Electrical and Electronic Engineers), especially the robotics team.
+					The big problem throughout the year is we had no easy way to transport and store our tools and materials.
+					So I designed a custom workbench that would fit our needs and be very flexible for any future needs.
+					It has 3 drawers, a lot of pegboard space, a vice, castors for mobility, and it's modular!
+					It comes apart so we can take it to robotics competitions if we want to.
+					Then I spent most of August 2019 building the actual thing.
+					I still need to do a few small things to it, but it is now at UK and being used!</p>
 				  <div class="slideshow-container">
 					<div class="mySlides3">
-						<img src="images/Project - workbench.png" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - workbench.png" class="slide">
 					</div>
 					<div class="mySlides3">
-						<img src="images/Project - workbench.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - workbench.jpg" class="slide">
 					</div>
 					<a class="prevSlide" onclick="plusSlides(-1, 3)">&#10094;</a> <!-- < Arrow -->
 					<a class="nextSlide" onclick="plusSlides( 1, 3)">&#10095;</a> <!-- > Arrow -->
@@ -113,16 +181,17 @@
 					<h2 style="display:inline;">POKEBALL</h2>
 					<span style="display:inline; float:right;">Spring 2018</span>
 				  </div>
-				  <p>This is a novelty cartridge holder for my Nintendo Switch games.
-					 I designed it myself using Autodesk 123D.
-					 Some springs are included in the design to make the push button functional: it pops the lid open!
-					 I published the files on my <a href="https://www.thingiverse.com/samk3ys/designs">Thingiverse page</a> if you'd like to make one yourself.</p>
+				  <p>
+					This is a novelty cartridge holder for my Nintendo Switch games.
+					I designed it myself using Autodesk 123D.
+					Some springs are included in the design to make the push button functional: it pops the lid open!
+					I published the files on my <a href="https://www.thingiverse.com/samk3ys/designs">Thingiverse page</a> if you'd like to make one yourself.</p>
 				  <div class="slideshow-container">
 					<div class="mySlides2">
-						<img src="images/Project - pokeball.png" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - pokeball.png" class="slide">
 					</div>
 					<div class="mySlides2">
-						<img src="images/Project - pokeball2.png" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - pokeball2.png" class="slide">
 					</div>
 					<a class="prevSlide" onclick="plusSlides(-1, 2)">&#10094;</a> <!-- < Arrow -->
 					<a class="nextSlide" onclick="plusSlides( 1, 2)">&#10095;</a> <!-- > Arrow -->
@@ -135,66 +204,71 @@
 					<h2 style="display:inline;">SNAKE GAME</h2>
 					<span style="display:inline; float:right;">Spring 2018</span>
 				  </div>
-				  <p>A project for my embedded systems course (CPE 287) of sophomore year.
-					 I worked with a friend, Devon Schleyer, to make a snake game running on a TI Launchpad microcontroller.
-					 It's got a 8x8 bi-color LED matrix, a controller, and a cool laser-cut wooden enclosure.
-					 <a href="https://www.youtube.com/watch?v=kfUqEBOcY4w">Here's a video we made about it.</a></p>
+				  <p>
+					A project for my embedded systems course (CPE 287) of sophomore year.
+					I worked with a friend, Devon Schleyer, to make a snake game running on a TI Launchpad microcontroller.
+					It's got a 8x8 bi-color LED matrix, a controller, and a cool laser-cut wooden enclosure.
+					<a href="https://www.youtube.com/watch?v=kfUqEBOcY4w">Here's a video we made about it.</a></p>
 				  <div class="slideshow-container">
 					<div class="mySlides1">
-						<img src="images/Project - snake2.JPG" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - snake2.JPG" class="slide">
 					</div>
 					<div class="mySlides1">
-						<img src="images/Project - snake.JPG" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - snake.JPG" class="slide">
 					</div>
 					<a class="prevSlide" onclick="plusSlides(-1, 1)">&#10094;</a> <!-- < Arrow -->
 					<a class="nextSlide" onclick="plusSlides( 1, 1)">&#10095;</a> <!-- > Arrow -->
 				  </div>
 				</li>
 				
-				<!--<li class="project" data-date="201306">
+				<li class="project" data-date="201306">
 				  <div>
 					<h2 style="display:inline;">EAGLE PROJECT</h2>
 					<span style="display:inline; float:right;">June 15, 2013</span>
+					<br><span style="display:inline; float:right;">Updated: Jan. 19, 2026</span>
 				  </div>
-				  <p>Each Scout must lead a service project as their final milestone on the path to the highest rank of Eagle Scout. 
-					 My project's goal was to replace a rotting picnic table with a more durable table along with benches surrounding a track and soccer field.
-					 Before starting the project I had to fill out a mountain of paperwork, get approval from the surrounding neighborhood, raise funds, and flesh out my plan.
-					 Thanks to some generous donations I was able to get the table, 3 benches, plaques commemorating those donors (from <a href="https://www.eaglesign.com/">Eagle Sign & Design</a>), plus trees and shrubs. 
-					 To help the actual work go smoothly I designed teams with specific tasks laid out on some graphical flyers. 
-					 My wonderful friends of <a href="https://middletown71.mytroop.us/">Troop 71</a> divided into those teams and helped bring my project to fruition. 
-					 The result was better than I hoped and everything is still being enjoyed.
+				  <p>
+					 Each Scout must lead a service project as their final milestone on the path to the highest rank of Eagle Scout. 
+					 My project added durable seating around a local track and field in the form of a picnic table and 3 park benches.
 				  </p>
-				  <p>This was my first big project. I worked very hard to ensure it went swimmingly. I accomplished something I believe was important and useful, while learning a lot along the way.
-					 My brother completed his Eagle Project during the same year and we both achieved the rank of Eagle Scouts; we were the two youngest Eagles our troop had seen yet. We remained active in our troop and ended with 6 palms (additional degrees to the rank of Eagle Scout) each. 
-					 Scouting taught me countless valuable lessons, brought me many friends, and took me on wilderness adventures. 
-					 For everything the BSA did I am grateful and I would not be the man I am today without it's institution.
+				  <p>
+					 Thanks to generous donations the project was even better than expected as I was able add landscaping and plaques 
+					 (from <a href="https://www.eaglesign.com/">Eagle Sign & Design</a>, now <a href="https://bsigngroup.com/">BSG</a>,) commemorating donors. 
+					 I gained valuable experience in project management, approval processes, effective fundraising, installation of permanent fixtures, 
+					 resource planning, creating a streamlined workflow (invloving team assignments and visual job guides), provisioning, and team-building.
+					 My wonderful friends of <a href="https://www.troop71ky.com/"><b>Troop 71</b></a> provided the muscle to bring the my project to fruition, and the memories to last a lifetime.
+				  </p>
+				  <p>
+					 This was my first <b>big</b> project, it went smoothly because of my effort, and I'm glad it is still being enjoyed today. 
+					 My brother completed his Eagle Project during the same year and we both achieved the rank of Eagle Scout; 
+					 we're the two youngest Eagles from our troop and we remained active until college. 
+					 I'm grateful to my time in Scouting and thankful for the friends, experiences, and adventures it brought me. 
 				  </p>
 				  <div class="slideshow-container">
 					<div class="mySlides0">
-						<img src="images/Project - Eagle.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - Eagle.jpg" class="slide">
 					</div>
 					<div class="mySlides0">
-						<img src="images/Project - Eagle2.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - Eagle2.jpg" class="slide">
 					</div>
 					<div class="mySlides0">
-						<img src="images/Project - Eagle3.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - Eagle3.jpg" class="slide">
 					</div>
 					<div class="mySlides0">
-						<img src="images/Project - Eagle4.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - Eagle4.jpg" class="slide">
 					</div>
 					<div class="mySlides0">
-						<img src="images/Project - Eagle5.jpg" style="width:50%; margin-left:auto; margin-right:auto; display:block;">
+						<img src="images/Project - Eagle5.jpg" class="slide">
 					</div>
-					<a class="prevSlide" onclick="plusSlides(-1, 0)">&#10094;</a> <!-- < Arrow --
-					<a class="nextSlide" onclick="plusSlides( 1, 0)">&#10095;</a> <!-- > Arrow --
+					<a class="prevSlide" onclick="plusSlides(-1, 0)">&#10094;</a>
+					<a class="nextSlide" onclick="plusSlides( 1, 0)">&#10095;</a>
 				  </div>
-				</li>-->
+				</li>
 			</ul>
         </div>
 
         <span id="footer">
             <h2> 
-                <!--<a href="mailto:sam.keys@uky.edu" style="color:white;text-decoration:none;">sam.keys@uky.edu</a> | -->
                 <a href="mailto:samk3ys@gmail.com" style="color:white;text-decoration:none;">samk3ys@gmail.com </a>
             </h2>
             <div class="contactLinks">
@@ -311,10 +385,8 @@
 	
 	
 	<!-- Slideshow scripts -->
-	//var slideIndex = [1, 1, 1, 1];
-	//var slideId = ["mySlides0", "mySlides1", "mySlides2", "mySlides3"]
-	var slideIndex = [1, 1, 1];
-	var slideId = ["mySlides1", "mySlides2", "mySlides3"]
+	var slideIndex = [1, 1, 1, 1, 1, 1, 1, 1];
+	var slideId = ["mySlides0", "mySlides1", "mySlides2", "mySlides3", "mySlides4", "mySlides5", "mySlides6", "mySlides7"]
 	for (i = 0; i < slideId.length; i++) {
 		showSlides(1, i); // Show the first pic in each slideshow to start
 	}
