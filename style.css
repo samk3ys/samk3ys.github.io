@@ -367,18 +367,24 @@ body{
     height: 3em;
     border-radius: 1.5em;
     padding: 4px;
-    opacity: 0.5;
-    transition:opacity 500ms, border-radius 1000ms;
+    opacity: 1;
     text-decoration:none;
     float: left;
 }
 
-.social:hover{  /* Social media button animation */
+
+/* Allow hover transformation when hover is available (i.e. not mobile) */
+@media (hover:hover) {
+    .social{        /* Social media button (use <a> tag around) */
+    opacity: 0.5;
+    transition:opacity 500ms, border-radius 1000ms;
+    }
+    .social:hover{  /* Social media button animation */
     opacity: 1;
     border-radius: 10px;
     transition:opacity 500ms, border-radius 1000ms;
 }
-
+}
 
 /* Responsive layout - when the screen is less than 1000px wide */
 @media screen and (max-width: 1000px) {
@@ -438,4 +444,5 @@ body{
         width:100% 
     }
 }
+
 
