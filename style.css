@@ -265,7 +265,7 @@ body{
 
 #appsBG{       /* Background for Apps page */
     display: block;
-    background-color: black;
+    background-color: white;
     margin-top: 20px;
     padding: 30px;
     border-radius: 3rem;
@@ -274,6 +274,11 @@ body{
     text-align: center;
     justify-content: center;
     
+}
+.appsTitle{
+    text-align:center; 
+    padding-bottom:1em; 
+    color:black;
 }
 .appButtonContainer{
     display: flex;
@@ -299,7 +304,7 @@ body{
     margin: 10px auto;
     width: 50%;
     height: 3rem;
-    background-color: rgba(64,64,64,1);   /* RGB color and Alpha transparency percentage [0,1] */
+    background-color: rgba(10,10,10,1);   /* RGB color and Alpha transparency percentage [0,1] */
     color: white;
     border: 0px solid white;                 /* Border (unaffected by "background-color" */
     font-family: sans-serif;
@@ -418,6 +423,12 @@ body{
         padding: 20px 10px;
     }
     .slide{
+        width: 90%;
+    }
+    .appButtonContainer > a {
+        width: 90%;    
+    }
+    .appButton{
         width: 90%;
     }
     #cv {           /* Background */
